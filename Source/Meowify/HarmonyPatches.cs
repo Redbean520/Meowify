@@ -58,7 +58,7 @@ namespace Meowify
             Log.Message("[Meowify] Harmony patches installed: " + PatchedCount + "/4. 喵。");
         }
 
-        private static int PatchedCount;
+      private static int PatchedCount;
 
         private static void TryPatch(string name, MethodBase target, HarmonyMethod prefix = null, HarmonyMethod postfix = null)
         {

@@ -71,19 +71,25 @@ namespace Meowify
             Section(listing, "一键预设");
             Rect presetRow = listing.GetRect(32f);
             float buttonWidth = (presetRow.width - 12f) / 3f;
-            if (Widgets.ButtonText(new Rect(presetRow.x, presetRow.y, buttonWidth, 30f), "轻度：只加句尾喵"))
+            Rect lightRect = new Rect(presetRow.x, presetRow.y, buttonWidth, 30f);
+            Rect standardRect = new Rect(presetRow.x + buttonWidth + 6f, presetRow.y, buttonWidth, 30f);
+            Rect feverRect = new Rect(presetRow.x + (buttonWidth + 6f) * 2f, presetRow.y, buttonWidth, 30f);
+            TooltipHandler.TipRegion(lightRect, "小喵一声：只加句尾喵，改动最小，适合怕吵的玩家。");
+            TooltipHandler.TipRegion(standardRect, "猫娘日常：句尾喵 + 我→本喵 / 你→主人 + 长句颜文字，QQ喵喵助手同款。");
+            TooltipHandler.TipRegion(feverRect, "喵力全开：句尾词 喵/喵呜/喵～、最短字数 1、长句必加颜文字。");
+            if (Widgets.ButtonText(lightRect, "小喵一声：只加句尾喵"))
             {
                 ApplyPreset(Preset.Light);
                 ApplySettings();
                 changed = true;
             }
-            if (Widgets.ButtonText(new Rect(presetRow.x + buttonWidth + 6f, presetRow.y, buttonWidth, 30f), "标准：QQ 喵喵助手"))
+            if (Widgets.ButtonText(standardRect, "猫娘日常：QQ喵喵助手"))
             {
                 ApplyPreset(Preset.Standard);
                 ApplySettings();
                 changed = true;
             }
-            if (Widgets.ButtonText(new Rect(presetRow.x + (buttonWidth + 6f) * 2f, presetRow.y, buttonWidth, 30f), "狂热：颜文字拉满"))
+            if (Widgets.ButtonText(feverRect, "喵力全开：颜文字拉满"))
             {
                 ApplyPreset(Preset.Fever);
                 ApplySettings();

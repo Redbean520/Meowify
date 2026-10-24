@@ -18,6 +18,22 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
     LoadFolders.xml
     tools\             打包脚本
 
+## 截图
+
+![示例截图拼图](docs/screenshots/00-preview.jpg)
+
+| 主菜单 | 殖民地界面 |
+|---|---|
+| ![](docs/screenshots/01-main-menu.jpg) | ![](docs/screenshots/02-ingame.jpg) |
+
+| 社交日志（喵 + 颜文字） | Mod 设置（预设 / 细调） |
+|---|---|
+| ![](docs/screenshots/03-social-log.jpg) | ![](docs/screenshots/04-settings-presets.jpg) |
+
+![设置界面底部：实时预览与高级选项](docs/screenshots/05-settings-preview.jpg)
+
+全部截图在 `docs/screenshots/`（1920×1080，可直接用于工坊页面）。
+
 ## 安装
 
 - 需要 **Harmony**（brrainz.harmony 的 1.7 版本，Harmony 3）
@@ -28,13 +44,13 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 游戏内 **选项 → Mod 设置 → 喵化世界 Meowify**：
 
-![设置界面](docs/settings.png)
+![设置界面：一键预设与细调](docs/screenshots/04-settings-presets.jpg)
 
-最上面是一键预设，下面按区块细调，底部有实时预览。
+最上面是一键预设（小喵一声 / 猫娘日常 / 喵力全开），下面按区块细调，底部有实时预览与高级选项：
 
 | 设置 | 默认 | 说明 |
 |---|---|---|
-| 一键预设 | 标准 | 轻度 = 只加句尾喵；标准 = QQ 喵喵助手风格；狂热 = 句尾词更多、颜文字更密 |
+| 一键预设 | 猫娘日常 | 小喵一声 = 只加句尾喵；猫娘日常 = QQ 喵喵助手风格；喵力全开 = 句尾词更多、颜文字更密 |
 | 句尾加语气词 | 开 | 按中英文标点断句，在句末标点前插入句尾词；没有标点时补在行尾 |
 | 最短喵化字数 | 2 | 少于这个可见字数的文本不加句尾词，避免按钮、图标说明被撑破 |
 | 句尾词候选 | `喵` | 每行一个，随机挑一个；留空 = 不加句尾词（全文原样） |
@@ -106,6 +122,13 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
   4. `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1`，产出到 `release\Meowify\`：`Meowify-<版本>\`（可直接放进 `Mods\`）与同名 zip
   5. `git tag v<版本>` 并推送
 - 号段语义：`1.0.x` 修 bug / 文本微调；`1.x.0` 新功能；`2.0.0` 不兼容或大改。
+
+## 发布物料
+
+- 工坊发布文案草稿：`docs/workshop.md`（标题 / 简介 / 标签 / 截图顺序 / 上传清单 / 更新日志）
+- 预览图：`About/Preview.png`（1280×720 四格拼图，工坊首图）
+- 截图：`docs/screenshots/`（00 拼图 + 01 主菜单 + 02 殖民地 + 03 社交日志 + 04 设置顶部 + 05 设置底部）
+- 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）
 
 ## 参考 / 相关工作
 
