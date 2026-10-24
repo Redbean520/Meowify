@@ -10,17 +10,32 @@ namespace Meowify
     /// </summary>
     public sealed class MeowOptions
     {
-        /// <summary>句末加「喵」。</summary>
+        /// <summary>句尾加语气词。</summary>
         public bool SentenceEnd = true;
 
         /// <summary>人称替换：我→本喵、你→主人（我们/你们 一并处理）。</summary>
         public bool PronounSwap = true;
 
+        /// <summary>第一人称自称；留空表示不替换「我」。</summary>
+        public string SelfPronoun = "本喵";
+
+        /// <summary>第二人称称呼；留空表示不替换「你」。</summary>
+        public string OtherPronoun = "主人";
+
+        /// <summary>少于这个可见字数的文本不加句尾词（避免把按钮、图标说明撑破）。</summary>
+        public int MinChars = 2;
+
+        /// <summary>句尾词候选；每个句子按原文哈希确定性地挑一个。空数组 = 不加句尾词。</summary>
+        public string[] EndWords = { "喵" };
+
         /// <summary>长句末尾追加随机猫咪颜文字。</summary>
         public bool Kaomoji = true;
 
-        /// <summary>追加颜文字需要的最少可见字符数（短标签不动，避免撑破按钮）。</summary>
+        /// <summary>追加颜文字需要的最少可见字符数。</summary>
         public int KaomojiMinChars = 10;
+
+        /// <summary>追加颜文字的概率（0-100）。</summary>
+        public int KaomojiChance = 100;
 
         /// <summary>颜文字候选列表。</summary>
         public string[] KaomojiList =
@@ -32,6 +47,9 @@ namespace Meowify
             "（´▽`）"
         };
 
+        /// <summary>用户额外添加的保护词（含「我/你」但不是人称代词，替换时整体跳过）。</summary>
+        public string[] ExtraProtectedWords = new string[0];
+
         public static MeowOptions Default
         {
             get { return new MeowOptions(); }
@@ -39,20 +57,17 @@ namespace Meowify
     }
 
     /// <summary>
-    /// 喵化核心：句尾加「喵」、人称替换（我→本喵 / 你→主人）、句末随机颜文字。
+    /// 喵化核心：句尾加语气词、人称替换、句末随机颜文字。
     /// 规则：
-    ///   - 按行处理，句末标点（。！？!?…．）前插入「喵」；
-    ///   - 行尾没有标点时在行尾（尾部闭合标签/右引号括号之前）补「喵」；
-    ///   - 如果该句末已经是「喵」则跳过（幂等，可反复调用）；
-    ///   - 纯标签、纯数字、纯空白、纯标点不加；
+    ///   - 按行处理，句末标点（。！？!?…．）前插入句尾词；
+    ///   - 行尾没有标点时在行尾（尾部闭合标签/右引号括号之前）补句尾词；
+    ///   - 该句末已经是任意句尾词则跳过（幂等，可反复调用）；
+    ///   - 纯标签、纯数字、纯空白、纯标点、过短文本不加；
     ///   - 不碰 &lt;tag&gt; 内部、不碰 {0}/{PROJECT_label} 占位符；
-    ///   - 颜文字按原文哈希确定性选择（同一句永远同一颜文字，不会每帧闪烁），
-    ///     只加给足够长的、含句读的文本，避免撑破信息卡/按钮。
+    ///   - 句尾词与颜文字都按原文哈希确定性选择（同一句永远同一个，不会每帧闪烁）。
     /// </summary>
     public static class Meowifier
     {
-        public const char MeowChar = '喵';
-
         private const int MaxCacheEntries = 50000;
 
         private static readonly HashSet<char> SentenceEndChars = new HashSet<char>
@@ -66,18 +81,10 @@ namespace Meowify
             '」', '』', '”', '’', '）', ')', '】', '》', '〉', '］', '｝'
         };
 
-        private static readonly string[][] PronounPairs =
-        {
-            new[] { "我们", "本喵们" },
-            new[] { "你们", "主人们" },
-            new[] { "我", "本喵" },
-            new[] { "你", "主人" }
-        };
-
         /// <summary>
         /// 含有「我 / 你」但并非人称代词的固定词，替换前先遮起来，避免「迷你」→「迷主人」这类误伤。
         /// </summary>
-        private static readonly string[] ProtectedWords =
+        private static readonly string[] BuiltinProtectedWords =
         {
             "迷你", "自我", "忘我", "无我", "敌我", "你我", "你死我活", "你争我夺"
         };
@@ -150,10 +157,18 @@ namespace Meowify
                 return text;
             }
 
+            // 纯数字/纯符号/纯空白没有可喵化的内容，直接返回（性能优化）
+            if (!HasAnyLetter(text))
+            {
+                return text;
+            }
+
+            Rules rules = Rules.From(options);
+
             string result;
             if (text.IndexOf('\n') < 0)
             {
-                result = MeowifyLine(text);
+                result = MeowifyLine(text, rules);
             }
             else
             {
@@ -166,7 +181,7 @@ namespace Meowify
                     {
                         continue;
                     }
-                    string meowed = MeowifyLine(line);
+                    string meowed = MeowifyLine(line, rules);
                     if (!string.Equals(meowed, line, StringComparison.Ordinal))
                     {
                         lines[i] = meowed;
@@ -176,21 +191,54 @@ namespace Meowify
                 result = changed ? string.Join("\n", lines) : text;
             }
 
-            return AppendKaomoji(text, result, options);
+            return AppendKaomoji(text, result, rules);
         }
 
-        private static string MeowifyLine(string line)
+        /// <summary>解析后的规则快照，一次 Meowify 调用内复用，避免反复分配。</summary>
+        private sealed class Rules
         {
-            string s = Options.PronounSwap ? SwapPronouns(line) : line;
-            if (!Options.SentenceEnd)
+            public MeowOptions Options;
+            public string[] EndWords;
+            public string[][] PronounPairs;
+            public string[] ProtectedWords;
+
+            public static Rules From(MeowOptions options)
+            {
+                Rules rules = new Rules();
+                rules.Options = options;
+                rules.EndWords = CleanList(options.EndWords);
+                rules.ProtectedWords = MergeProtected(options.ExtraProtectedWords);
+
+                string self = options.SelfPronoun == null ? string.Empty : options.SelfPronoun.Trim();
+                string other = options.OtherPronoun == null ? string.Empty : options.OtherPronoun.Trim();
+                List<string[]> pairs = new List<string[]>(4);
+                if (self.Length > 0)
+                {
+                    pairs.Add(new[] { "我们", self + "们" });
+                    pairs.Add(new[] { "我", self });
+                }
+                if (other.Length > 0)
+                {
+                    pairs.Add(new[] { "你们", other + "们" });
+                    pairs.Add(new[] { "你", other });
+                }
+                rules.PronounPairs = pairs.ToArray();
+                return rules;
+            }
+        }
+
+        private static string MeowifyLine(string line, Rules rules)
+        {
+            string s = rules.Options.PronounSwap ? SwapPronouns(line, rules) : line;
+            if (!rules.Options.SentenceEnd || rules.EndWords.Length == 0)
             {
                 return s;
             }
-            return MeowLineSentenceEnd(s);
+            return MeowLineSentenceEnd(s, rules);
         }
 
         /// <summary>在可见文本段里做人称替换，标签与占位符原样保留。</summary>
-        private static string SwapPronouns(string line)
+        private static string SwapPronouns(string line, Rules rules)
         {
             StringBuilder sb = new StringBuilder(line.Length + 8);
             int len = line.Length;
@@ -205,7 +253,7 @@ namespace Meowify
                     int tagEnd = line.IndexOf('>', i + 1);
                     if (tagEnd >= 0)
                     {
-                        AppendRun(sb, line, runStart, i);
+                        AppendRun(sb, line, runStart, i, rules);
                         sb.Append(line, i, tagEnd - i + 1);
                         i = tagEnd + 1;
                         runStart = i;
@@ -217,7 +265,7 @@ namespace Meowify
                     int phEnd = line.IndexOf('}', i + 1);
                     if (phEnd >= 0)
                     {
-                        AppendRun(sb, line, runStart, i);
+                        AppendRun(sb, line, runStart, i, rules);
                         sb.Append(line, i, phEnd - i + 1);
                         i = phEnd + 1;
                         runStart = i;
@@ -226,31 +274,32 @@ namespace Meowify
                 }
                 i++;
             }
-            AppendRun(sb, line, runStart, len);
+            AppendRun(sb, line, runStart, len, rules);
             return sb.ToString();
         }
 
-        private static void AppendRun(StringBuilder sb, string line, int start, int end)
+        private static void AppendRun(StringBuilder sb, string line, int start, int end, Rules rules)
         {
             if (end <= start)
             {
                 return;
             }
             string run = line.Substring(start, end - start);
-            run = MaskProtected(run);
-            for (int p = 0; p < PronounPairs.Length; p++)
+            run = MaskProtected(run, rules.ProtectedWords);
+            string[][] pairs = rules.PronounPairs;
+            for (int p = 0; p < pairs.Length; p++)
             {
-                run = run.Replace(PronounPairs[p][0], PronounPairs[p][1]);
+                run = run.Replace(pairs[p][0], pairs[p][1]);
             }
-            run = UnmaskProtected(run);
+            run = UnmaskProtected(run, rules.ProtectedWords);
             sb.Append(run);
         }
 
-        private static string MaskProtected(string run)
+        private static string MaskProtected(string run, string[] protectedWords)
         {
-            for (int i = 0; i < ProtectedWords.Length; i++)
+            for (int i = 0; i < protectedWords.Length; i++)
             {
-                string word = ProtectedWords[i];
+                string word = protectedWords[i];
                 if (run.IndexOf(word, StringComparison.Ordinal) >= 0)
                 {
                     run = run.Replace(word, MaskStart.ToString() + i + MaskEnd.ToString());
@@ -259,21 +308,24 @@ namespace Meowify
             return run;
         }
 
-        private static string UnmaskProtected(string run)
+        private static string UnmaskProtected(string run, string[] protectedWords)
         {
-            for (int i = 0; i < ProtectedWords.Length; i++)
+            for (int i = 0; i < protectedWords.Length; i++)
             {
                 string token = MaskStart.ToString() + i + MaskEnd.ToString();
                 if (run.IndexOf(token, StringComparison.Ordinal) >= 0)
                 {
-                    run = run.Replace(token, ProtectedWords[i]);
+                    run = run.Replace(token, protectedWords[i]);
                 }
             }
             return run;
         }
 
-        private static string MeowLineSentenceEnd(string line)
+        private static string MeowLineSentenceEnd(string line, Rules rules)
         {
+            string[] endWords = rules.EndWords;
+            string endWord = PickWord(line, endWords);
+
             int len = line.Length;
             StringBuilder sb = new StringBuilder(len + 8);
             bool letterSeen = false;
@@ -307,9 +359,9 @@ namespace Meowify
                     if (letterSeen)
                     {
                         int insertAt = TrailingDecorationStart(sb);
-                        if (LastVisibleChar(sb, insertAt) != MeowChar)
+                        if (!EndsWithAnyWord(sb, insertAt, endWords))
                         {
-                            sb.Insert(insertAt, MeowChar);
+                            sb.Insert(insertAt, endWord);
                         }
                     }
 
@@ -330,24 +382,25 @@ namespace Meowify
                 i++;
             }
 
-            if (!letterSeen || visibleChars < 2)
+            if (!letterSeen || visibleChars < Math.Max(1, rules.Options.MinChars))
             {
                 return line;
             }
 
             int endInsertAt = TrailingDecorationStart(sb);
             char last = LastVisibleChar(sb, endInsertAt);
-            if (last != MeowChar && last != '\0' && !SentenceEndChars.Contains(last))
+            if (last != '\0' && !SentenceEndChars.Contains(last) && !EndsWithAnyWord(sb, endInsertAt, endWords))
             {
-                sb.Insert(endInsertAt, MeowChar);
+                sb.Insert(endInsertAt, endWord);
             }
 
             string result = sb.ToString();
             return string.Equals(result, line, StringComparison.Ordinal) ? line : result;
         }
 
-        private static string AppendKaomoji(string original, string result, MeowOptions options)
+        private static string AppendKaomoji(string original, string result, Rules rules)
         {
+            MeowOptions options = rules.Options;
             if (!options.Kaomoji || options.KaomojiList == null || options.KaomojiList.Length == 0)
             {
                 return result;
@@ -365,6 +418,13 @@ namespace Meowify
                 return result;
             }
 
+            uint h = Hash(original);
+            int chance = options.KaomojiChance;
+            if (chance <= 0 || (int)(h % 100u) >= chance)
+            {
+                return result;
+            }
+
             int end = result.Length;
             while (end > 0 && char.IsWhiteSpace(result[end - 1]))
             {
@@ -375,9 +435,80 @@ namespace Meowify
                 return result;
             }
 
-            uint h = Hash(original);
             string kaomoji = options.KaomojiList[(int)(h % (uint)options.KaomojiList.Length)];
             return result.Substring(0, end) + kaomoji + result.Substring(end);
+        }
+
+        /// <summary>句尾词：按原文哈希确定性挑选，同一句永远同一个词。</summary>
+        private static string PickWord(string line, string[] words)
+        {
+            return words[(int)(Hash(line) % (uint)words.Length)];
+        }
+
+        private static bool EndsWithAnyWord(StringBuilder sb, int limit, string[] words)
+        {
+            for (int i = 0; i < words.Length; i++)
+            {
+                string word = words[i];
+                int wordLen = word.Length;
+                if (wordLen == 0 || wordLen > limit)
+                {
+                    continue;
+                }
+                bool match = true;
+                for (int k = 0; k < wordLen; k++)
+                {
+                    if (sb[limit - wordLen + k] != word[k])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static string[] CleanList(string[] list)
+        {
+            if (list == null || list.Length == 0)
+            {
+                return new string[0];
+            }
+            List<string> result = new List<string>(list.Length);
+            for (int i = 0; i < list.Length; i++)
+            {
+                string item = list[i] == null ? null : list[i].Trim();
+                if (!string.IsNullOrEmpty(item) && !result.Contains(item))
+                {
+                    result.Add(item);
+                }
+            }
+            return result.ToArray();
+        }
+
+        private static string[] MergeProtected(string[] extra)
+        {
+            List<string> result = new List<string>(BuiltinProtectedWords.Length + (extra == null ? 0 : extra.Length));
+            for (int i = 0; i < BuiltinProtectedWords.Length; i++)
+            {
+                result.Add(BuiltinProtectedWords[i]);
+            }
+            if (extra != null)
+            {
+                for (int i = 0; i < extra.Length; i++)
+                {
+                    string item = extra[i] == null ? null : extra[i].Trim();
+                    if (!string.IsNullOrEmpty(item) && item.IndexOf(MaskStart) < 0 && item.IndexOf(MaskEnd) < 0 && !result.Contains(item))
+                    {
+                        result.Add(item);
+                    }
+                }
+            }
+            return result.ToArray();
         }
 
         private static bool EndsWithKaomoji(string text, string[] list)
@@ -396,6 +527,19 @@ namespace Meowify
                 string k = list[i];
                 if (!string.IsNullOrEmpty(k) && end >= k.Length &&
                     string.CompareOrdinal(text, end - k.Length, k, 0, k.Length) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>文本里是否存在字母（中英文都算）；纯数字/纯符号直接跳过喵化。</summary>
+        private static bool HasAnyLetter(string text)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (char.IsLetter(text[i]))
                 {
                     return true;
                 }
@@ -486,7 +630,7 @@ namespace Meowify
             return h;
         }
 
-        /// <summary>跳过行尾空白、闭合标签、右引号/括号，返回可插入「喵」的位置。</summary>
+        /// <summary>跳过行尾空白、闭合标签、右引号/括号，返回可插入句尾词的位置。</summary>
         private static int TrailingDecorationStart(StringBuilder sb)
         {
             int k = sb.Length - 1;

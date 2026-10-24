@@ -6,6 +6,7 @@ namespace Meowify
 {
     /// <summary>
     /// 模组入口：Mod 构造时（早于 def 加载与语言注入）装上 Harmony 补丁，并载入设置。
+    /// 设置界面用 Listing_Standard + 滚动视图，分预设 / 句尾 / 人称 / 颜文字 / 高级 / 预览几块。
     /// </summary>
     public class MeowifyMod : Mod
     {
@@ -13,6 +14,22 @@ namespace Meowify
         public const string Version = "1.0.0";
 
         public static MeowSettings Settings;
+
+        private static readonly string[] PreviewSamples =
+        {
+            "你的殖民者发现了一片富含钢铁的矿脉。我们发财了！",
+            "我刚刚做了一把迷你炮塔。",
+            "敌人正在接近，准备战斗！"
+        };
+
+        private Vector2 scrollPosition;
+
+        private enum Preset
+        {
+            Light,
+            Standard,
+            Fever
+        }
 
         public MeowifyMod(ModContentPack content) : base(content)
         {
@@ -25,7 +42,6 @@ namespace Meowify
             {
                 Log.Message("[Meowify] 样例: " + Meowifier.Meowify("你的殖民者发现了一片富含钢铁的矿脉。"));
             }
-
         }
 
         public static void ApplySettings()
@@ -42,62 +58,225 @@ namespace Meowify
         public override void DoSettingsWindowContents(Rect inRect)
         {
             bool changed = false;
-            Listing_Standard listing = new Listing_Standard();
-            listing.Begin(inRect);
 
-            listing.Label("语气：每句话末尾都要带「喵」。");
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 24f, 1120f);
+            Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
+            Listing_Standard listing = new Listing_Standard();
+            listing.Begin(viewRect);
+
+            Text.WordWrap = true;
+            GUI.color = Color.white;
+
+            // ---------------------------------------------------------------- 预设
+            Section(listing, "一键预设");
+            Rect presetRow = listing.GetRect(32f);
+            float buttonWidth = (presetRow.width - 12f) / 3f;
+            if (Widgets.ButtonText(new Rect(presetRow.x, presetRow.y, buttonWidth, 30f), "轻度：只加句尾喵"))
+            {
+                ApplyPreset(Preset.Light);
+                ApplySettings();
+                changed = true;
+            }
+            if (Widgets.ButtonText(new Rect(presetRow.x + buttonWidth + 6f, presetRow.y, buttonWidth, 30f), "标准：QQ 喵喵助手"))
+            {
+                ApplyPreset(Preset.Standard);
+                ApplySettings();
+                changed = true;
+            }
+            if (Widgets.ButtonText(new Rect(presetRow.x + (buttonWidth + 6f) * 2f, presetRow.y, buttonWidth, 30f), "狂热：颜文字拉满"))
+            {
+                ApplyPreset(Preset.Fever);
+                ApplySettings();
+                changed = true;
+            }
+            listing.Gap(4f);
+
+            // ---------------------------------------------------------------- 句尾
+            Section(listing, "① 句尾语气词");
+            changed |= Checkbox(listing, "句尾加语气词", ref Settings.SentenceEnd,
+                "按中英文标点断句，在句末标点前插入句尾词；没有标点时补在行尾。");
+            changed |= Slider(listing, "最短喵化字数", ref Settings.MinChars, 1f, 8f, 0.7f,
+                "少于这个可见字数的文本不加句尾词，避免把按钮、图标说明撑破。");
+            changed |= Entry(listing, "句尾词候选（每行一个，随机挑一个；留空 = 不加）：",
+                ref Settings.EndWordsRaw, EntryLines(Settings.EndWordsRaw, 2, 6));
             listing.Gap(6f);
 
-            bool sentenceEnd = Settings.SentenceEnd;
-            listing.CheckboxLabeled("句尾加「喵」", ref sentenceEnd, "按中英文标点断句，在句末标点前插入「喵」；没有标点时补在行尾。");
-            changed |= sentenceEnd != Settings.SentenceEnd;
-            Settings.SentenceEnd = sentenceEnd;
+            // ---------------------------------------------------------------- 人称
+            Section(listing, "② 人称替换");
+            changed |= Checkbox(listing, "替换人称代词", ref Settings.PronounSwap,
+                "默认「我 → 本喵」「你 → 主人」，我们/你们 会一起变成复数形式。");
+            if (Settings.PronounSwap)
+            {
+                changed |= TextRow(listing, "第一人称（我 →）：", ref Settings.SelfPronoun,
+                    "留空表示不替换「我」。默认：本喵");
+                changed |= TextRow(listing, "第二人称（你 →）：", ref Settings.OtherPronoun,
+                    "留空表示不替换「你」。默认：主人");
+            }
+            listing.Gap(6f);
 
-            bool pronounSwap = Settings.PronounSwap;
-            listing.CheckboxLabeled("人称替换", ref pronounSwap, "我 → 本喵，你 → 主人（我们/你们 一并替换）。");
-            changed |= pronounSwap != Settings.PronounSwap;
-            Settings.PronounSwap = pronounSwap;
-
-            bool kaomoji = Settings.Kaomoji;
-            listing.CheckboxLabeled("句末颜文字", ref kaomoji, "较长且带句读的文本，末尾随机追加一个猫咪颜文字。");
-            changed |= kaomoji != Settings.Kaomoji;
-            Settings.Kaomoji = kaomoji;
-
+            // ---------------------------------------------------------------- 颜文字
+            Section(listing, "③ 句末颜文字");
+            changed |= Checkbox(listing, "长句追加颜文字", ref Settings.Kaomoji,
+                "可见字数达到阈值、且含句读的文本，末尾按概率追加一个猫咪颜文字。");
             if (Settings.Kaomoji)
             {
-                float minChars = listing.SliderLabeled(
-                    "颜文字最短字数：" + Settings.KaomojiMinChars,
-                    Settings.KaomojiMinChars, 4f, 30f, 0.6f,
-                    "全文可见字符数达到这个长度才会追加颜文字，避免把按钮/信息卡撑破。");
-                int rounded = Mathf.RoundToInt(minChars);
-                if (rounded != Settings.KaomojiMinChars)
-                {
-                    Settings.KaomojiMinChars = rounded;
-                    changed = true;
-                }
+                changed |= Slider(listing, "触发概率 %", ref Settings.KaomojiChance, 0f, 100f, 0.7f,
+                    "100 = 每句都加；0 = 不加。按原文哈希决定，同一句结果固定。");
+                changed |= Slider(listing, "颜文字最短字数", ref Settings.KaomojiMinChars, 4f, 40f, 0.7f,
+                    "全文可见字符数达到这个长度才会追加颜文字。");
+                changed |= Entry(listing, "颜文字候选（每行一个，留空就不加）：",
+                    ref Settings.KaomojiListRaw, EntryLines(Settings.KaomojiListRaw, 3, 8));
+            }
+            listing.Gap(6f);
 
-                listing.Label("颜文字候选（每行一个，留空就不加）：");
-                string raw = listing.TextEntry(Settings.KaomojiListRaw, 6);
-                if (!string.Equals(raw, Settings.KaomojiListRaw, StringComparison.Ordinal))
-                {
-                    Settings.KaomojiListRaw = raw;
-                    changed = true;
-                }
+            // ---------------------------------------------------------------- 预览
+            listing.Gap(10f);
+            Section(listing, "预览");
+            for (int i = 0; i < PreviewSamples.Length; i++)
+            {
+                string preview = Meowifier.Meowify(PreviewSamples[i]);
+                listing.Label("· " + preview, 60f);
             }
 
-            listing.Gap(10f);
+            // ---------------------------------------------------------------- 高级
+            Section(listing, "④ 高级");
+            changed |= Entry(listing, "额外保护词（每行一个）：", ref Settings.ExtraProtectedWordsRaw, 3);
+            listing.Label("含有「我 / 你」但不是人称代词的词，替换前会整体跳过。" +
+                          "内置：迷你、自我、忘我、无我、敌我、你我…");
+
+            // ---------------------------------------------------------------- 底部
+            listing.Gap(12f);
             if (listing.ButtonText("恢复默认"))
             {
                 Settings.ResetToDefaults();
+                ApplySettings();
                 changed = true;
             }
+            listing.Label("改动即时生效，关闭窗口时自动保存。");
 
             listing.End();
+            Widgets.EndScrollView();
 
             if (changed)
             {
                 ApplySettings();
                 Settings.Write();
+            }
+        }
+
+        private static void Section(Listing_Standard listing, string title)
+        {
+            listing.Gap(10f);
+            GameFont previous = Text.Font;
+            Text.Font = GameFont.Medium;
+            listing.Label(title);
+            Text.Font = previous;
+            listing.GapLine(4f);
+        }
+
+        private static bool Checkbox(Listing_Standard listing, string label, ref bool value, string tooltip)
+        {
+            bool before = value;
+            listing.CheckboxLabeled(label, ref value, tooltip);
+            return before != value;
+        }
+
+        private static bool Slider(Listing_Standard listing, string label, ref int value, float min, float max,
+            float labelPct, string tooltip)
+        {
+            float result = listing.SliderLabeled(label + "：" + value, value, min, max, labelPct, tooltip);
+            int rounded = Mathf.RoundToInt(result);
+            if (rounded != value)
+            {
+                value = rounded;
+                return true;
+            }
+            return false;
+        }
+
+        private static bool TextRow(Listing_Standard listing, string label, ref string value, string tooltip)
+        {
+            Rect row = listing.GetRect(30f);
+            Widgets.Label(new Rect(row.x, row.y, row.width * 0.4f, row.height), label);
+            if (!tooltip.NullOrEmpty())
+            {
+                TooltipHandler.TipRegion(row, tooltip);
+            }
+            string edited = Widgets.TextField(new Rect(row.x + row.width * 0.4f, row.y, row.width * 0.6f, 28f), value ?? string.Empty);
+            if (!string.Equals(edited, value, StringComparison.Ordinal))
+            {
+                value = edited;
+                return true;
+            }
+            return false;
+        }
+
+        private static int EntryLines(string value, int min, int max)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return min;
+            }
+            int lines = 0;
+            foreach (string line in value.Split('\n'))
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    lines++;
+                }
+            }
+            return Mathf.Clamp(lines + 1, min, max);
+        }
+
+        private static bool Entry(Listing_Standard listing, string label, ref string value, int lineCount)
+        {
+            listing.Label(label);
+            string edited = listing.TextEntry(value ?? string.Empty, lineCount);
+            if (!string.Equals(edited, value, StringComparison.Ordinal))
+            {
+                value = edited;
+                return true;
+            }
+            return false;
+        }
+
+        private void ApplyPreset(Preset preset)
+        {
+            switch (preset)
+            {
+                case Preset.Light:
+                    Settings.SentenceEnd = true;
+                    Settings.EndWordsRaw = MeowSettings.DefaultEndWords;
+                    Settings.MinChars = 2;
+                    Settings.PronounSwap = false;
+                    Settings.Kaomoji = false;
+                    break;
+
+                case Preset.Standard:
+                    Settings.SentenceEnd = true;
+                    Settings.EndWordsRaw = MeowSettings.DefaultEndWords;
+                    Settings.MinChars = 2;
+                    Settings.PronounSwap = true;
+                    Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
+                    Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;
+                    Settings.Kaomoji = true;
+                    Settings.KaomojiMinChars = 10;
+                    Settings.KaomojiChance = 100;
+                    Settings.KaomojiListRaw = MeowSettings.DefaultKaomojiList;
+                    break;
+
+                case Preset.Fever:
+                    Settings.SentenceEnd = true;
+                    Settings.EndWordsRaw = "喵\n喵呜\n喵～";
+                    Settings.MinChars = 1;
+                    Settings.PronounSwap = true;
+                    Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
+                    Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;
+                    Settings.Kaomoji = true;
+                    Settings.KaomojiMinChars = 5;
+                    Settings.KaomojiChance = 100;
+                    Settings.KaomojiListRaw = MeowSettings.DefaultKaomojiList;
+                    break;
             }
         }
     }
