@@ -1,90 +1,131 @@
-# 工坊发布文案草稿（Steam Workshop）
+# Steam 工坊发布文案 · v1.1.0（可直接复制）
 
-上传时按下面顺序填；方括号里是操作提示，不要复制进工坊。
+> 版本：1.1.0 ｜ 目标：RimWorld 1.7 ｜ 依赖：Harmony（brrainz.harmony）
+> 生成日期：2026-10-24
 
-## 标题
+---
 
-    喵化世界 Meowify
+## ① 标题（Title）
 
-## 摘要（工坊右侧短描述，≤ 200 字）
+```text
+喵化世界 Meowify
+```
 
-    给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、我→本喵 / 你→主人、长句随机猫咪颜文字。
-    不改任何翻译文件，运行时生效，兼容任意语言与其它模组；一键预设 + 细调 + 实时预览。需要 Harmony。
+备用（带英文）：
+```text
+喵化世界 Meowify — 让 RimWorld 里的每句话都会喵
+```
 
-## 标签
+## ② 摘要 / 列表短描述（Short description）
 
-    Mod / 1.7 / Harmony / 汉化 / 界面 / 文本
+```text
+给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、我→本喵 / 你→主人、长句随机猫咪颜文字。不改翻译文件，运行时生效，兼容其它模组；三种一键预设 + 细调 + 实时预览。需要 Harmony。
+```
 
-## 简介正文（BBCode，直接贴进工坊描述框）
+英文摘要（贴在描述第一段末尾，给非中文玩家）：
+```text
+Every string in RimWorld 1.7 learns to meow: sentence-final "喵", 我→本喵 / 你→主人 pronoun swap, random cat kaomoji on long sentences. Runtime-only, no translation files touched, works alongside other mods. Requires Harmony.
+```
 
-    [h1]喵化世界 Meowify[/h1]
-    [b]—— 让边缘世界里的每一句话，都变成猫娘在说话。[/b]
+## ③ 描述正文（BBCode，直接粘贴进工坊描述框）
 
-    [h2]这是什么[/h2]
-    这是一个纯文本层的模组：不改动任何翻译文件、不改动 Def，只在游戏运行时把显示出来的文字换成
-    「QQ喵喵助手」那种腔调 ——
-    [list]
-    [*] 句尾加「喵」：新建殖民地 → 新建殖民地喵
-    [*] 人称替换：我 → 本喵，你 → 主人（可关、可改）
-    [*] 长句随机猫咪颜文字：（=^ω^=）（≧▽≦）等 5 种，可自定义
-    [*] 覆盖主菜单、按钮、提示、物品/地块信息、事件日志、小人背景故事、语法规则生成的文本
-    [/list]
+```bbcode
+[h1]喵化世界 Meowify[/h1]
+[b]让边缘世界里的每一句话，都变成猫娘在说话。[/b]
 
-    [h2]三种预设，也可以自己调[/h2]
-    [list]
-    [*] [b]小喵一声[/b]：只加句尾喵，改动最小，适合怕吵的玩家
-    [*] [b]猫娘日常[/b]：句尾喵 + 人称替换 + 长句颜文字，QQ喵喵助手同款
-    [*] [b]喵力全开[/b]：句尾词 喵/喵呜/喵～，最短字数 1，长句必加颜文字
-    [/list]
-    选项 → Mod 设置 → 喵化世界 Meowify 里还能细调：句尾词候选、最短喵化字数、自称/对称、颜文字概率与候选、
-    额外保护词（避免「迷你」「自我」「敌我」被误替换），改完立即生效，并有实时预览。
+[h2]这是什么[/h2]
+纯文本层的模组：不改任何翻译文件、不改 Def、不改存档，只在游戏运行时把显示出来的文字换成「QQ喵喵助手」那种腔调——
+[list]
+[*] 句尾加「喵」：新建殖民地 → 新建殖民地喵
+[*] 人称替换：我 → 本喵，你 → 主人（可关、也能改成别的词）
+[*] 长句末尾随机追加猫咪颜文字：（=^ω^=）（≧▽≦）（｡･ω･｡）……
+[*] 覆盖范围：主菜单、按钮、提示、物品/地块/植物信息卡、事件日志、小人背景故事，以及语法规则生成的句子
+[/list]
 
-    [h2]安装[/h2]
-    [list]
-    [*] 需要 [b]Harmony[/b]（brrainz.harmony 的 1.7 版本）
-    [*] 订阅本模组，在模组列表里勾选，重启游戏
-    [*] 加载顺序：Harmony 在前，本模组在后（About.xml 已声明 loadAfter）
-    [/list]
+[h2]三种一键预设[/h2]
+[list]
+[*] [b]小喵一声[/b]：只加句尾喵，改动最小，适合怕吵的玩家
+[*] [b]猫娘日常[/b]：句尾喵 + 我→本喵 / 你→主人 + 长句颜文字（默认）
+[*] [b]喵力全开[/b]：句尾词 喵 / 喵呜 / 喵～，最短字数 1，长句必加颜文字
+[/list]
 
-    [h2]兼容性 / 说明[/h2]
-    [list]
-    [*] 纯运行时文本变换：不写回游戏数据、不改存档结构，随时可以关掉
-    [*] 与其它翻译、文本类模组同时使用通常没问题；若和机器翻译类模组叠加，可能叠成双份喵化
-    [*] 已为中文语言包设计（按中文句末标点断句），英文与其他语言同样会加「喵」
-    [*] 开发模式下的翻译报告/调试按钮不会被改动
-    [/list]
+[h2]还能细调[/h2]
+路径：[b]选项 → Mod 设置 → 喵化世界 Meowify[/b]
+[list]
+[*] 句尾语气词：开关、最短喵化字数、句尾词候选（每行一个，随机挑一个）
+[*] 人称替换：第一人称（我 →）、第二人称（你 →），可留空表示不替换
+[*] 句末颜文字：开关、触发概率、最短字数、候选列表
+[*] 额外保护词：含「我 / 你」但不是人称的词整段跳过（内置：迷你、自我、忘我、无我、敌我、你我……）
+[*] 底部实时预览：改完立刻看到效果，关闭窗口自动保存
+[/list]
 
-    [h2]致谢[/h2]
-    [list]
-    [*] 风格来源：QQ喵喵助手（qq790795623-sudo/qq-meow-assistant）
-    [*] 时序参考：csh1668/AutoTranslation —— 同样在 LoadedLanguage 注入阶段做文章
-    [*] 感谢 Ludeon 与 RimWorld 中文翻译组
-    [/list]
+[h2]安装[/h2]
+[list]
+[*] 需要 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077]Harmony[/url]（brrainz.harmony 的 1.7 版本）
+[*] 订阅本模组 → 模组列表勾选 → 重启游戏
+[*] 加载顺序：Harmony 在前，Meowify 在后（About.xml 已声明 loadAfter，通常自动排好）
+[/list]
 
-    [h2]更新日志[/h2]
-    [b]v1.0.0[/b]
-    [list]
-    [*] 首次发布：四层 Harmony 补丁覆盖 Keyed / DefInjected / 语法规则 / Def 扫尾
-    [*] 三种一键预设 + 完整设置界面 + 实时预览
-    [*] 句尾词候选、人称自定义、颜文字概率与候选、额外保护词
-    [/list]
+[h2]兼容性[/h2]
+[list]
+[*] 运行时文本变换：不写回游戏数据、不改存档结构，随时可以关掉或退订
+[*] 与其它翻译模组、文本类模组共存没问题
+[*] 与机器翻译类模组（如 Auto Translation）叠加时，可能出现「双份喵化」——同一句被两层处理，属于预期现象，二选一即可
+[*] 仅支持 RimWorld 1.7（1.6 不适用）
+[/list]
 
-## 截图上传顺序
+[h2]已知小问题[/h2]
+部分句子会出现「喵喵」（两层文本管线各加了一次），不影响使用；设置里把句尾词改少或等后续版本修复。
 
-1. `docs/screenshots/00-poster.jpg` —— 二次元主视觉（也用作 About/Preview.png）
-2. `docs/screenshots/06-feature-tail.jpg` —— ① 句尾喵
-3. `docs/screenshots/07-feature-pronoun.jpg` —— ② 人称替换
-4. `docs/screenshots/08-feature-kaomoji.jpg` —— ③ 随机颜文字
-5. `docs/screenshots/09-onscreen.jpg` —— 实机效果
-6. `docs/screenshots/01-main-menu.jpg` / 02 殖民地 / 03 社交日志 / 04–05 设置界面 —— 真机细节
+[h2]更新日志[/h2]
+[b]v1.1.0[/b]（首发）
+[list]
+[*] 三种一键预设：小喵一声 / 猫娘日常 / 喵力全开
+[*] 完整设置界面：句尾词候选、最短喵化字数、人称自定义、颜文字概率与候选、额外保护词、实时预览
+[*] 修复占位符 {0} / {PROJECT_label} 被拆开导致「Could not resolve symbol」刷屏
+[*] 修复 DefInjected 反射取错泛型参数、物品与研究文本没喵化的问题
+[*] 新的二次元主视觉与工坊图
+[/list]
 
-说明：1–5 为二次元风格宣传图（Agnes 生成的猫娘插画 + 本地排版），6 起为真机截图，工坊里建议这样搭配（先氛围后实机）。
+[h2]英文说明[/h2]
+This mod post-processes every displayed string at runtime: sentence-final "喵", 我→本喵 / 你→主人 pronoun swap, random cat kaomoji on long sentences. No translation files or defs are modified, so it is save-safe and can be toggled off at any time. Requires Harmony. RimWorld 1.7 only. Settings: Options → Mod settings → Meowify (three presets + full customization + live preview).
 
-## 上传前清单
+[h2]致谢[/h2]
+[list]
+[*] 风格来源：[b]QQ喵喵助手[/b]（qq790795623-sudo/qq-meow-assistant）
+[*] 注入时机参考：[b]csh1668/AutoTranslation[/b]
+[*] 感谢 Ludeon 与 RimWorld 中文翻译组
+[/list]
+```
 
-- [ ] 版本号三处一致：About/About.xml `<modVersion>`、MeowifyMod.cs `const string Version`、Meowify.csproj `<Version>`
-- [ ] `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` 跑通，产物在 `release\Meowify\`
-- [ ] 用发布包（不含 Source）在干净环境启动一次：日志里 `Harmony patches installed: 4/4`，0 ERROR
-- [ ] 关闭 devMode 再拍图（避免出现 Dev: 快速测试喵 之类的调试项）
-- [ ] 工坊上传 zip 后，把生成的 PublishedFileId 写入 `About/PublishedFileId.txt`（git 忽略）
-- [ ] 工坊页填标题/摘要/标签，按上面顺序上传截图
+## ④ 标签（Tags）
+
+```text
+Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
+```
+
+## ⑤ 工坊图片上传顺序
+
+| 顺序 | 文件 | 说明 |
+|---|---|---|
+| 1 | `docs/screenshots/00-poster.jpg` | 二次元主视觉（即 About/Preview.png） |
+| 2 | `docs/screenshots/06-feature-tail.jpg` | ① 句尾喵 |
+| 3 | `docs/screenshots/07-feature-pronoun.jpg` | ② 人称替换 |
+| 4 | `docs/screenshots/08-feature-kaomoji.jpg` | ③ 随机颜文字 |
+| 5 | `docs/screenshots/09-onscreen.jpg` | 实机效果 |
+| 6 | `docs/screenshots/01-main-menu.jpg` | 真机：主菜单 |
+| 7 | `docs/screenshots/02-ingame.jpg` | 真机：殖民地界面 |
+| 8 | `docs/screenshots/03-social-log.jpg` | 真机：社交日志 |
+| 9 | `docs/screenshots/04-settings-presets.jpg` | 设置界面顶部 |
+| 10 | `docs/screenshots/05-settings-preview.jpg` | 设置界面底部（预览 / 高级） |
+
+## ⑥ 发布步骤清单
+
+- [x] 三处版本号同步为 1.1.0（About.xml / MeowifyMod.cs / csproj）
+- [x] `tools\make-release.ps1` 打包成功：`release\Meowify\Meowify-1.1.0\` + `Meowify-1.1.0.zip`（837,875 B，5 个文件）
+- [x] 用发布包实跑验证：日志 `Harmony patches installed: 4/4`、`v1.1.0 已加载`、0 ERROR / 0 Exception / 0 unresolved
+- [ ] 工坊新建条目：填标题、摘要、描述（上面 ③ 整段粘贴）
+- [ ] 上传 zip：`release\Meowify\Meowify-1.1.0.zip`
+- [ ] 按 ⑤ 顺序上传图片，首图为 00-poster.jpg
+- [ ] 工坊生成 PublishedFileId 后写入 `About/PublishedFileId.txt`（该文件已被 .gitignore 忽略），再提交一次
+- [ ] 打 tag 并推送：`git tag v1.1.0 && git push --tags`

@@ -114,7 +114,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 ## 版本号与发版
 
-- 日常改动（修 bug、调文本、小重构）**不升版本号**，只提交测试版仓库；版本号保持 1.0.0 不动，也不重新打包。
+- 日常改动（修 bug、调文本、小重构）**不升版本号**，只提交测试版仓库；版本号保持当前版本（1.1.0）不动，也不重新打包。
 - 只有三种情况才升版本，且升之前先跟 Redbean 确认：
   1. 功能阶段完成、要交付或上传工坊；
   2. Redbean 明确说「发版」；
@@ -129,7 +129,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 ## 发布物料
 
-- 工坊发布文案草稿：`docs/workshop.md`（标题 / 简介 / 标签 / 截图顺序 / 上传清单 / 更新日志）
+- 工坊发布文案：`docs/workshop.md`（v1.1.0 可直接复制的标题 / 摘要 / BBCode 正文 / 标签 / 截图顺序 / 发布清单）
 - 预览图：`About/Preview.png`（1280×720 四格拼图，工坊首图）
 - 截图：`docs/screenshots/`（00 主视觉 + 06/07/08 特性图 + 09 实机效果 + 01–05 真机截图）
 - 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）

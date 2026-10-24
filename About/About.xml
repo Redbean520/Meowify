@@ -15,5 +15,5 @@ Every string in RimWorld learns to meow: UI keyed text, def labels and descripti
     </li>
   </modDependencies>
   <loadAfter><li>brrainz.harmony</li></loadAfter>
-  <modVersion>1.0.0</modVersion>
+  <modVersion>1.1.0</modVersion>
 </ModMetaData>
