@@ -76,7 +76,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 - [csh1668/AutoTranslation](https://github.com/csh1668/AutoTranslation)：运行时机器翻译未翻译文本。它同样把注入点放在 `LoadedLanguage.InjectIntoData_BeforeImpliedDefs` / `InjectIntoData_AfterImpliedDefs`（与本模组的时机判断一致），区别是它把译文写回 keyed / DefInjected 字典；本模组在输出处做变换，不改游戏数据。
 - [RimWorld-zh/RimTrans](https://github.com/RimWorld-zh/RimTrans)：成熟的离线翻译工具（导出 / 合并 / 校验），如果以后想把喵化做成静态语言包，可以用它批处理。
-- [sgoudham/uwuifyy](https://github.com/ssgoudham/uwuifyy)：通用 uwu 文本变形实现，标点与大小写处理可参考。
+- [sgoudham/uwuifyy](https://github.com/sgoudham/uwuifyy)：通用 uwu 文本变形实现，标点与大小写处理可参考。
 - 官方机制：Dev 模式「生成翻译报告」+ 未翻译文本列表，可用来核对喵化覆盖率。
 
 ## 许可
