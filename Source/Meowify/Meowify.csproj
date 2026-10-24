@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    喵化世界（Meowify）· RimWorld 1.7 专用程序集：
+      - net10.0 + Krafs.Rimworld.Ref 1.7.4985-unstable + Lib.Harmony 3.0.0-rc.3
+      - 0Harmony 由 brrainz.harmony 模组在运行时提供，本模组不自带
+      - 产物直接落到 1.7\Assemblies
+    版本号三处同步：这里 / MeowifyMod.cs 的 Version 常量 / About\About.xml 的 <modVersion>。
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <AssemblyName>Meowify</AssemblyName>
+    <RootNamespace>Meowify</RootNamespace>
+
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+
+    <Version>1.0.0</Version>
+    <Company>Redbean</Company>
+    <Product>Meowify</Product>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.7.4985-unstable" />
+    <PackageReference Include="Lib.Harmony" Version="3.0.0-rc.3" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <!-- 编译产物直接落到 mod 的 1.7\Assemblies\ 下 -->
+  <Target Name="CopyToModAssemblies" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(MSBuildProjectDirectory)\..\..\1.7\Assemblies"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

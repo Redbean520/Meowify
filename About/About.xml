@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>喵化世界 Meowify</name>
+  <author>Redbean</author>
+  <packageId>redbean.meowify</packageId>
+  <description>让整个 RimWorld 都学会用喵说话。运行时给所有文本（界面 Keyed 文本、物品/特性/背景故事等 Def 字段、事件日志、小人生成名、派系与任务名）加上句尾「喵」，不改动任何原始翻译文件，可随时启用/关闭。
+
+Every string in RimWorld learns to meow: UI keyed text, def labels and descriptions, generated sentences and names. Requires Harmony.</description>
+  <supportedVersions><li>1.7</li></supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter><li>brrainz.harmony</li></loadAfter>
+  <modVersion>1.0.0</modVersion>
+</ModMetaData>
