@@ -20,19 +20,23 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 ## 截图
 
-![示例截图拼图](docs/screenshots/00-preview.jpg)
+![主视觉](docs/screenshots/00-poster.jpg)
 
-| 主菜单 | 殖民地界面 |
+| ① 句尾喵 | ② 人称替换 |
 |---|---|
-| ![](docs/screenshots/01-main-menu.jpg) | ![](docs/screenshots/02-ingame.jpg) |
+| ![](docs/screenshots/06-feature-tail.jpg) | ![](docs/screenshots/07-feature-pronoun.jpg) |
 
-| 社交日志（喵 + 颜文字） | Mod 设置（预设 / 细调） |
-|---|---|
-| ![](docs/screenshots/03-social-log.jpg) | ![](docs/screenshots/04-settings-presets.jpg) |
+![③ 随机颜文字](docs/screenshots/08-feature-kaomoji.jpg)
 
-![设置界面底部：实时预览与高级选项](docs/screenshots/05-settings-preview.jpg)
+实机效果：
 
-全部截图在 `docs/screenshots/`（1920×1080，可直接用于工坊页面）。
+![实机效果](docs/screenshots/09-onscreen.jpg)
+
+| 主菜单 | 殖民地界面 | 社交日志 | 设置界面 |
+|---|---|---|---|
+| ![](docs/screenshots/01-main-menu.jpg) | ![](docs/screenshots/02-ingame.jpg) | ![](docs/screenshots/03-social-log.jpg) | ![](docs/screenshots/04-settings-presets.jpg) |
+
+全部图在 `docs/screenshots/`（1920×1080 主视觉与特性图 + 1920×1080 实机截图），可直接用于工坊页面。
 
 ## 安装
 
@@ -127,7 +131,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 
 - 工坊发布文案草稿：`docs/workshop.md`（标题 / 简介 / 标签 / 截图顺序 / 上传清单 / 更新日志）
 - 预览图：`About/Preview.png`（1280×720 四格拼图，工坊首图）
-- 截图：`docs/screenshots/`（00 拼图 + 01 主菜单 + 02 殖民地 + 03 社交日志 + 04 设置顶部 + 05 设置底部）
+- 截图：`docs/screenshots/`（00 主视觉 + 06/07/08 特性图 + 09 实机效果 + 01–05 真机截图）
 - 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）
 
 ## 参考 / 相关工作

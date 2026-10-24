@@ -71,12 +71,14 @@
 
 ## 截图上传顺序
 
-1. `docs/screenshots/00-preview.jpg`（四格拼图，也可直接用作 About/Preview.png）
-2. `docs/screenshots/01-main-menu.jpg`
-3. `docs/screenshots/02-ingame.jpg`
-4. `docs/screenshots/03-social-log.jpg`
-5. `docs/screenshots/04-settings-presets.jpg`
-6. `docs/screenshots/05-settings-preview.jpg`
+1. `docs/screenshots/00-poster.jpg` —— 二次元主视觉（也用作 About/Preview.png）
+2. `docs/screenshots/06-feature-tail.jpg` —— ① 句尾喵
+3. `docs/screenshots/07-feature-pronoun.jpg` —— ② 人称替换
+4. `docs/screenshots/08-feature-kaomoji.jpg` —— ③ 随机颜文字
+5. `docs/screenshots/09-onscreen.jpg` —— 实机效果
+6. `docs/screenshots/01-main-menu.jpg` / 02 殖民地 / 03 社交日志 / 04–05 设置界面 —— 真机细节
+
+说明：1–5 为二次元风格宣传图（Agnes 生成的猫娘插画 + 本地排版），6 起为真机截图，工坊里建议这样搭配（先氛围后实机）。
 
 ## 上传前清单
 
