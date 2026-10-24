@@ -57,17 +57,27 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 - 事件日志与小人名字（GrammarResolver）
 - 殖民者背景故事（BackstoryDef 扫尾）
 
-## 版本号（三处一致）
+## 版本号与发版
 
-1. `About\About.xml` 的 `<modVersion>`
-2. `Source\Meowify\MeowifyMod.cs` 的 `const string Version`
-3. `Source\Meowify\Meowify.csproj` 的 `<Version>`
+- 日常改动（修 bug、调文本、小重构）**不升版本号**，只提交测试版仓库；版本号保持 1.0.0 不动，也不重新打包。
+- 只有三种情况才升版本，且升之前先跟 Redbean 确认：
+  1. 功能阶段完成、要交付或上传工坊；
+  2. Redbean 明确说「发版」；
+  3. 有不兼容改动（存档 / 配置 / 接口），必须升并说明影响。
+- 升版本动作固定：三处同步 → 打包 → 打 tag
+  1. `About\About.xml` 的 `<modVersion>`
+  2. `Source\Meowify\MeowifyMod.cs` 的 `const string Version`
+  3. `Source\Meowify\Meowify.csproj` 的 `<Version>`
+  4. `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1`，产出到 `release\Meowify\`：`Meowify-<版本>\`（可直接放进 `Mods\`）与同名 zip
+  5. `git tag v<版本>` 并推送
+- 号段语义：`1.0.x` 修 bug / 文本微调；`1.x.0` 新功能；`2.0.0` 不兼容或大改。
 
-## 发版
+## 参考 / 相关工作
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1
-
-产出到工作区的 `release\Meowify\`：`Meowify-<版本>\`（可直接放进 `Mods\`）与同名 zip。
+- [csh1668/AutoTranslation](https://github.com/csh1668/AutoTranslation)：运行时机器翻译未翻译文本。它同样把注入点放在 `LoadedLanguage.InjectIntoData_BeforeImpliedDefs` / `InjectIntoData_AfterImpliedDefs`（与本模组的时机判断一致），区别是它把译文写回 keyed / DefInjected 字典；本模组在输出处做变换，不改游戏数据。
+- [RimWorld-zh/RimTrans](https://github.com/RimWorld-zh/RimTrans)：成熟的离线翻译工具（导出 / 合并 / 校验），如果以后想把喵化做成静态语言包，可以用它批处理。
+- [sgoudham/uwuifyy](https://github.com/ssgoudham/uwuifyy)：通用 uwu 文本变形实现，标点与大小写处理可参考。
+- 官方机制：Dev 模式「生成翻译报告」+ 未翻译文本列表，可用来核对喵化覆盖率。
 
 ## 许可
 
