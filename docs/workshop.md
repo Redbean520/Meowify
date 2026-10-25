@@ -1,7 +1,7 @@
-# Steam 工坊发布文案 · v1.1.0（可直接复制）
+# Steam 工坊发布文案 · v1.2.0（可直接复制）
 
-> 版本：1.1.0 ｜ 目标：RimWorld 1.7 ｜ 依赖：Harmony（brrainz.harmony）
-> 生成日期：2026-10-24
+> 版本：1.2.0 ｜ 目标：RimWorld 1.7 ｜ 依赖：Harmony（brrainz.harmony）
+> 更新日期：2026-10-25
 
 ---
 
@@ -19,7 +19,7 @@
 ## ② 摘要 / 列表短描述（Short description）
 
 ```text
-给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、我→本喵 / 你→主人、长句随机猫咪颜文字。不改翻译文件，运行时生效，兼容其它模组；三种一键预设 + 细调 + 实时预览。需要 Harmony。
+给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、我→本喵 / 你→主人、长句随机猫咪颜文字。不改翻译文件，运行时生效，兼容其它模组；三种一键预设 + 加喵概率、排除片段等细调 + 实时预览。需要 Harmony。
 ```
 
 英文摘要（贴在描述第一段末尾，给非中文玩家）：
@@ -52,10 +52,11 @@ Every string in RimWorld 1.7 learns to meow: sentence-final "喵", 我→本喵 
 [h2]还能细调[/h2]
 路径：[b]选项 → Mod 设置 → 喵化世界 Meowify[/b]
 [list]
-[*] 句尾语气词：开关、最短喵化字数、句尾词候选（每行一个，随机挑一个）
+[*] 句尾语气词：开关、最短喵化字数、加喵概率（可只给一部分句子加喵）、句尾词候选（每行一个，随机挑一个）
 [*] 人称替换：第一人称（我 →）、第二人称（你 →），可留空表示不替换
 [*] 句末颜文字：开关、触发概率、最短字数、候选列表
 [*] 额外保护词：含「我 / 你」但不是人称的词整段跳过（内置：迷你、自我、忘我、无我、敌我、你我……）
+[*] 排除片段：文本里出现指定片段就整段原样返回，给个别模组留后门
 [*] 底部实时预览：改完立刻看到效果，关闭窗口自动保存
 [/list]
 
@@ -67,8 +68,6 @@ Every string in RimWorld 1.7 learns to meow: sentence-final "喵", 我→本喵 
 [*] 仅支持 RimWorld 1.7（1.6 不适用），需要 Harmony
 [/list]
 
-[h2]已知小问题[/h2]
-部分句子会出现「喵喵」（两层文本管线各加了一次），不影响使用；设置里把句尾词改少或等后续版本修复。
 ```
 
 ## ④ 标签（Tags）
@@ -94,12 +93,13 @@ Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
 
 ## ⑥ 发布步骤清单
 
-- [x] 三处版本号同步为 1.1.0（About.xml / MeowifyMod.cs / csproj）
-- [x] `tools\make-release.ps1` 打包成功：`release\Meowify\Meowify-1.1.0\` + `Meowify-1.1.0.zip`（837,875 B，5 个文件）
-- [x] 用发布包实跑验证：日志 `Harmony patches installed: 4/4`、`v1.1.0 已加载`、0 ERROR / 0 Exception / 0 unresolved
+- [x] 三处版本号同步为 1.2.0（About.xml / MeowifyMod.cs / csproj）
+- [x] 编译 0 警告 0 错误；核心逻辑单测 ALL PASS（含新功能：句尾词折叠、加喵概率、排除片段）
+- [ ] `tools\make-release.ps1` 打包：`release\Meowify\Meowify-1.2.0\` + `Meowify-1.2.0.zip`
+- [ ] 把发布包内容装进 `Mods\Meowify\`（真实文件夹，不是 junction）
 - [ ] 工坊新建条目：填标题、摘要、描述（上面 ③ 整段粘贴）
-- [ ] 上传 zip：`release\Meowify\Meowify-1.1.0.zip`
+- [ ] 上传 zip：`release\Meowify\Meowify-1.2.0.zip`
 - [x] 封面已换成「日系手绘卡通」插画版（`About/Preview.png` + `docs/screenshots/00-poster.jpg`）；旧图备份在 `art\Meowify\cover\About-Preview-backup.png`
 - [ ] 按 ⑤ 顺序上传图片，首图为 00-poster.jpg
 - [ ] 工坊生成 PublishedFileId 后写入 `About/PublishedFileId.txt`（该文件已被 .gitignore 忽略），再提交一次
-- [ ] 打 tag 并推送：`git tag v1.1.0 && git push --tags`
+- [ ] 打 tag 并推送：`git tag v1.2.0 && git push --tags`

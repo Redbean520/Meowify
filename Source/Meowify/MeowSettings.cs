@@ -19,6 +19,7 @@ namespace Meowify
         public bool SentenceEnd = true;
         public string EndWordsRaw = DefaultEndWords;
         public int MinChars = 2;
+        public int SentenceEndChance = 100;
 
         // 人称
         public bool PronounSwap = true;
@@ -33,12 +34,14 @@ namespace Meowify
 
         // 高级
         public string ExtraProtectedWordsRaw = string.Empty;
+        public string ExcludedPhrasesRaw = string.Empty;
 
         public override void ExposeData()
         {
             Scribe_Values.Look(ref SentenceEnd, "sentenceEnd", true);
             Scribe_Values.Look(ref EndWordsRaw, "endWords", DefaultEndWords);
             Scribe_Values.Look(ref MinChars, "minChars", 2);
+            Scribe_Values.Look(ref SentenceEndChance, "sentenceEndChance", 100);
             Scribe_Values.Look(ref PronounSwap, "pronounSwap", true);
             Scribe_Values.Look(ref SelfPronoun, "selfPronoun", DefaultSelfPronoun);
             Scribe_Values.Look(ref OtherPronoun, "otherPronoun", DefaultOtherPronoun);
@@ -47,6 +50,7 @@ namespace Meowify
             Scribe_Values.Look(ref KaomojiChance, "kaomojiChance", 100);
             Scribe_Values.Look(ref KaomojiListRaw, "kaomojiList", DefaultKaomojiList);
             Scribe_Values.Look(ref ExtraProtectedWordsRaw, "extraProtectedWords", string.Empty);
+            Scribe_Values.Look(ref ExcludedPhrasesRaw, "excludedPhrases", string.Empty);
         }
 
         public void ResetToDefaults()
@@ -54,6 +58,7 @@ namespace Meowify
             SentenceEnd = true;
             EndWordsRaw = DefaultEndWords;
             MinChars = 2;
+            SentenceEndChance = 100;
             PronounSwap = true;
             SelfPronoun = DefaultSelfPronoun;
             OtherPronoun = DefaultOtherPronoun;
@@ -62,6 +67,7 @@ namespace Meowify
             KaomojiChance = 100;
             KaomojiListRaw = DefaultKaomojiList;
             ExtraProtectedWordsRaw = string.Empty;
+            ExcludedPhrasesRaw = string.Empty;
         }
 
         public MeowOptions ToOptions()
@@ -70,6 +76,7 @@ namespace Meowify
             options.SentenceEnd = SentenceEnd;
             options.EndWords = ParseList(EndWordsRaw);
             options.MinChars = MinChars < 1 ? 1 : MinChars;
+            options.SentenceEndChance = Clamp(SentenceEndChance, 0, 100);
             options.PronounSwap = PronounSwap;
             options.SelfPronoun = SelfPronoun == null ? string.Empty : SelfPronoun.Trim();
             options.OtherPronoun = OtherPronoun == null ? string.Empty : OtherPronoun.Trim();
@@ -78,6 +85,7 @@ namespace Meowify
             options.KaomojiChance = Clamp(KaomojiChance, 0, 100);
             options.KaomojiList = ParseList(KaomojiListRaw);
             options.ExtraProtectedWords = ParseList(ExtraProtectedWordsRaw);
+            options.ExcludedPhrases = ParseList(ExcludedPhrasesRaw);
             return options;
         }
 

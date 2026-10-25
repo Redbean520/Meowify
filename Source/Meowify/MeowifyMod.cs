@@ -11,7 +11,7 @@ namespace Meowify
     public class MeowifyMod : Mod
     {
         /// <summary>与 About\About.xml 的 modVersion、csproj 的 Version 保持一致。</summary>
-        public const string Version = "1.1.0";
+        public const string Version = "1.2.0";
 
         public static MeowSettings Settings;
 
@@ -59,7 +59,7 @@ namespace Meowify
         {
             bool changed = false;
 
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 24f, 1120f);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 24f, 1200f);
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
@@ -103,6 +103,8 @@ namespace Meowify
                 "按中英文标点断句，在句末标点前插入句尾词；没有标点时补在行尾。");
             changed |= Slider(listing, "最短喵化字数", ref Settings.MinChars, 1f, 8f, 0.7f,
                 "少于这个可见字数的文本不加句尾词，避免把按钮、图标说明撑破。");
+            changed |= Slider(listing, "加喵概率 %", ref Settings.SentenceEndChance, 0f, 100f, 0.7f,
+                "100 = 每句都加；调低后只给一部分句子加喵。按原文哈希决定，同一句结果固定。");
             changed |= Entry(listing, "句尾词候选（每行一个，随机挑一个；留空 = 不加）：",
                 ref Settings.EndWordsRaw, EntryLines(Settings.EndWordsRaw, 2, 6));
             listing.Gap(6f);
@@ -149,6 +151,9 @@ namespace Meowify
             changed |= Entry(listing, "额外保护词（每行一个）：", ref Settings.ExtraProtectedWordsRaw, 3);
             listing.Label("含有「我 / 你」但不是人称代词的词，替换前会整体跳过。" +
                           "内置：迷你、自我、忘我、无我、敌我、你我…");
+            listing.Gap(4f);
+            changed |= Entry(listing, "排除片段（每行一个，命中就整段不喵化）：", ref Settings.ExcludedPhrasesRaw, 3);
+            listing.Label("给个别模组的特殊文本留后门：文本里只要出现这些片段，就原样返回，不加喵也不替换人称。");
 
             // ---------------------------------------------------------------- 底部
             listing.Gap(12f);
@@ -158,7 +163,7 @@ namespace Meowify
                 ApplySettings();
                 changed = true;
             }
-            listing.Label("改动即时生效，关闭窗口时自动保存。");
+            listing.Label("改动即时生效，关闭窗口时自动保存。喵化世界 Meowify v" + Version);
 
             listing.End();
             Widgets.EndScrollView();
@@ -254,6 +259,7 @@ namespace Meowify
                     Settings.SentenceEnd = true;
                     Settings.EndWordsRaw = MeowSettings.DefaultEndWords;
                     Settings.MinChars = 2;
+                    Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = false;
                     Settings.Kaomoji = false;
                     break;
@@ -262,6 +268,7 @@ namespace Meowify
                     Settings.SentenceEnd = true;
                     Settings.EndWordsRaw = MeowSettings.DefaultEndWords;
                     Settings.MinChars = 2;
+                    Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = true;
                     Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
                     Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;
@@ -275,6 +282,7 @@ namespace Meowify
                     Settings.SentenceEnd = true;
                     Settings.EndWordsRaw = "喵\n喵呜\n喵～";
                     Settings.MinChars = 1;
+                    Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = true;
                     Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
                     Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;

@@ -28,6 +28,9 @@ namespace Meowify
         /// <summary>句尾词候选；每个句子按原文哈希确定性地挑一个。空数组 = 不加句尾词。</summary>
         public string[] EndWords = { "喵" };
 
+        /// <summary>句尾词出现概率（0-100）。100 = 每句都加；调低后按原文哈希确定性跳过一部分句子。</summary>
+        public int SentenceEndChance = 100;
+
         /// <summary>长句末尾追加随机猫咪颜文字。</summary>
         public bool Kaomoji = true;
 
@@ -49,6 +52,9 @@ namespace Meowify
 
         /// <summary>用户额外添加的保护词（含「我/你」但不是人称代词，替换时整体跳过）。</summary>
         public string[] ExtraProtectedWords = new string[0];
+
+        /// <summary>排除片段：文本里出现任意一个片段就完全不喵化（给个别模组的特殊文本留后门）。</summary>
+        public string[] ExcludedPhrases = new string[0];
 
         public static MeowOptions Default
         {
@@ -93,6 +99,9 @@ namespace Meowify
         private const char MaskEnd = '\uE001';
 
         private static readonly Dictionary<string, string> Cache = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        /// <summary>最近一次构建的规则快照；Options 没换就直接复用，省掉每次调用的数组分配。</summary>
+        private static Rules lastRules;
         private static readonly object CacheLock = new object();
 
         /// <summary>当前生效的选项；模组加载和设置变更时替换。</summary>
@@ -163,7 +172,13 @@ namespace Meowify
                 return text;
             }
 
-            Rules rules = Rules.From(options);
+            Rules rules = GetRules(options);
+
+            // 命中排除片段就原样返回
+            if (IsExcluded(text, rules.ExcludedPhrases))
+            {
+                return text;
+            }
 
             string result;
             if (text.IndexOf('\n') < 0)
@@ -191,7 +206,22 @@ namespace Meowify
                 result = changed ? string.Join("\n", lines) : text;
             }
 
+            // 折叠句末连续重复的同一个句尾词（修「喵喵。」这种多层叠加）
+            result = CollapseRepeatedEndWords(result, rules.EndWords);
             return AppendKaomoji(text, result, rules);
+        }
+
+        /// <summary>取规则快照：选项对象没变就复用上次构建的结果。</summary>
+        private static Rules GetRules(MeowOptions options)
+        {
+            Rules cached = lastRules;
+            if (cached != null && ReferenceEquals(cached.Options, options))
+            {
+                return cached;
+            }
+            Rules built = Rules.From(options);
+            lastRules = built;
+            return built;
         }
 
         /// <summary>解析后的规则快照，一次 Meowify 调用内复用，避免反复分配。</summary>
@@ -201,6 +231,8 @@ namespace Meowify
             public string[] EndWords;
             public string[][] PronounPairs;
             public string[] ProtectedWords;
+            public string[] ExcludedPhrases;
+            public int SentenceEndChance;
 
             public static Rules From(MeowOptions options)
             {
@@ -208,6 +240,8 @@ namespace Meowify
                 rules.Options = options;
                 rules.EndWords = CleanList(options.EndWords);
                 rules.ProtectedWords = MergeProtected(options.ExtraProtectedWords);
+                rules.ExcludedPhrases = CleanList(options.ExcludedPhrases);
+                rules.SentenceEndChance = options.SentenceEndChance;
 
                 string self = options.SelfPronoun == null ? string.Empty : options.SelfPronoun.Trim();
                 string other = options.OtherPronoun == null ? string.Empty : options.OtherPronoun.Trim();
@@ -229,6 +263,11 @@ namespace Meowify
 
         private static string MeowifyLine(string line, Rules rules)
         {
+            bool sentenceEnd = rules.Options.SentenceEnd && rules.EndWords.Length > 0;
+            if (!rules.Options.PronounSwap && !sentenceEnd)
+            {
+                return line;
+            }
             string s = rules.Options.PronounSwap ? SwapPronouns(line, rules) : line;
             if (!rules.Options.SentenceEnd || rules.EndWords.Length == 0)
             {
@@ -356,7 +395,7 @@ namespace Meowify
                         j++;
                     }
 
-                    if (letterSeen)
+                    if (letterSeen && ShouldAddEndWord(line, i, rules))
                     {
                         int insertAt = TrailingDecorationStart(sb);
                         if (!EndsWithAnyWord(sb, insertAt, endWords))
@@ -389,7 +428,8 @@ namespace Meowify
 
             int endInsertAt = TrailingDecorationStart(sb);
             char last = LastVisibleChar(sb, endInsertAt);
-            if (last != '\0' && !SentenceEndChars.Contains(last) && !EndsWithAnyWord(sb, endInsertAt, endWords))
+            if (ShouldAddEndWord(line, -1, rules) && last != '\0' && !SentenceEndChars.Contains(last) &&
+                !EndsWithAnyWord(sb, endInsertAt, endWords))
             {
                 sb.Insert(endInsertAt, endWord);
             }
@@ -628,6 +668,121 @@ namespace Meowify
                 h *= 16777619u;
             }
             return h;
+        }
+
+        /// <summary>是否要在这个位置加句尾词：按概率 + 原文哈希确定性决定，同一句永远同一结果。</summary>
+        private static bool ShouldAddEndWord(string line, int position, Rules rules)
+        {
+            int chance = rules.SentenceEndChance;
+            if (chance >= 100)
+            {
+                return true;
+            }
+            if (chance <= 0)
+            {
+                return false;
+            }
+            uint h = Hash(line) ^ ((uint)(position + 1) * 2654435761u);
+            return (int)(h % 100u) < chance;
+        }
+
+        /// <summary>文本里是否出现了任一排除片段。</summary>
+        private static bool IsExcluded(string text, string[] phrases)
+        {
+            for (int i = 0; i < phrases.Length; i++)
+            {
+                string phrase = phrases[i];
+                if (phrase.Length > 0 && text.IndexOf(phrase, StringComparison.Ordinal) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>把句末/行尾连续重复的同一个句尾词折叠成一个。</summary>
+        private static string CollapseRepeatedEndWords(string text, string[] endWords)
+        {
+            if (text == null || text.Length < 2 || endWords == null || endWords.Length == 0)
+            {
+                return text;
+            }
+
+            StringBuilder sb = new StringBuilder(text.Length);
+            int len = text.Length;
+            int i = 0;
+            while (i < len)
+            {
+                char c = text[i];
+                if (c == '\n')
+                {
+                    CollapseRepeatedTail(sb, endWords);
+                    sb.Append(c);
+                    i++;
+                    continue;
+                }
+                if (SentenceEndChars.Contains(c))
+                {
+                    CollapseRepeatedTail(sb, endWords);
+                    int j = i;
+                    while (j < len && SentenceEndChars.Contains(text[j]))
+                    {
+                        j++;
+                    }
+                    sb.Append(text, i, j - i);
+                    i = j;
+                    continue;
+                }
+                sb.Append(c);
+                i++;
+            }
+            CollapseRepeatedTail(sb, endWords);
+
+            string collapsed = sb.ToString();
+            return string.Equals(collapsed, text, StringComparison.Ordinal) ? text : collapsed;
+        }
+
+        private static void CollapseRepeatedTail(StringBuilder sb, string[] endWords)
+        {
+            bool changed = true;
+            while (changed)
+            {
+                changed = false;
+                for (int w = 0; w < endWords.Length; w++)
+                {
+                    string word = endWords[w];
+                    int wordLen = word.Length;
+                    if (wordLen == 0 || sb.Length < wordLen * 2)
+                    {
+                        continue;
+                    }
+                    int n = sb.Length;
+                    if (!TailEquals(sb, n, word) || !TailEquals(sb, n - wordLen, word))
+                    {
+                        continue;
+                    }
+                    sb.Length = n - wordLen;
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        private static bool TailEquals(StringBuilder sb, int end, string word)
+        {
+            int wordLen = word.Length;
+            if (end < wordLen)
+            {
+                return false;
+            }
+            for (int k = 0; k < wordLen; k++)
+            {
+                if (sb[end - wordLen + k] != word[k])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>跳过行尾空白、闭合标签、右引号/括号，返回可插入句尾词的位置。</summary>
