@@ -81,7 +81,7 @@ Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
 
 | 顺序 | 文件 | 说明 |
 |---|---|---|
-| 1 | `docs/screenshots/00-poster.jpg` | 二次元主视觉（即 About/Preview.png） |
+| 1 | `docs/screenshots/00-poster.jpg` | 二次元主视觉插画（即 About/Preview.png 的 1920×1080 版） |
 | 2 | `docs/screenshots/06-feature-tail.jpg` | ① 句尾喵 |
 | 3 | `docs/screenshots/07-feature-pronoun.jpg` | ② 人称替换 |
 | 4 | `docs/screenshots/08-feature-kaomoji.jpg` | ③ 随机颜文字 |
@@ -99,6 +99,7 @@ Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
 - [x] 用发布包实跑验证：日志 `Harmony patches installed: 4/4`、`v1.1.0 已加载`、0 ERROR / 0 Exception / 0 unresolved
 - [ ] 工坊新建条目：填标题、摘要、描述（上面 ③ 整段粘贴）
 - [ ] 上传 zip：`release\Meowify\Meowify-1.1.0.zip`
+- [x] 封面已换成「日系手绘卡通」插画版（`About/Preview.png` + `docs/screenshots/00-poster.jpg`）；旧图备份在 `art\Meowify\cover\About-Preview-backup.png`
 - [ ] 按 ⑤ 顺序上传图片，首图为 00-poster.jpg
 - [ ] 工坊生成 PublishedFileId 后写入 `About/PublishedFileId.txt`（该文件已被 .gitignore 忽略），再提交一次
 - [ ] 打 tag 并推送：`git tag v1.1.0 && git push --tags`

@@ -130,7 +130,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 ## 发布物料
 
 - 工坊发布文案：`docs/workshop.md`（v1.1.0 可直接复制的标题 / 摘要 / BBCode 正文 / 标签 / 截图顺序 / 发布清单）
-- 预览图：`About/Preview.png`（1280×720 四格拼图，工坊首图）
+- 预览图：`About/Preview.png`（1280×720 插画封面，工坊首图；`docs/screenshots/00-poster.jpg` 是它的 1920×1080 版本）
 - 截图：`docs/screenshots/`（00 主视觉 + 06/07/08 特性图 + 09 实机效果 + 01–05 真机截图）
 - 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）
 
