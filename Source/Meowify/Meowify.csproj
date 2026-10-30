@@ -23,7 +23,7 @@
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
 
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <Company>Redbean</Company>
     <Product>Meowify</Product>
     <NoWarn>CS1591</NoWarn>

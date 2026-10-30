@@ -11,7 +11,7 @@ namespace Meowify
     public class MeowifyMod : Mod
     {
         /// <summary>与 About\About.xml 的 modVersion、csproj 的 Version 保持一致。</summary>
-        public const string Version = "1.2.0";
+        public const string Version = "1.3.0";
 
         public static MeowSettings Settings;
 
