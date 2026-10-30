@@ -625,7 +625,7 @@ namespace Meowify
             int endInsertAt = TrailingDecorationStart(sb);
             char last = LastVisibleChar(sb, endInsertAt);
             if (ShouldAddEndWord(line, -1, rules) && last != '\0' && !SentenceEndChars.Contains(last) &&
-                !EndsWithEndWordOrSuffix(sb, endInsertAt, rules))
+                !EndsWithEndWordOrSuffix(sb, endInsertAt, rules) && !EndsWithNamePlaceholder(sb, endInsertAt))
             {
                 sb.Insert(endInsertAt, endWord);
             }
@@ -1009,6 +1009,40 @@ namespace Meowify
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// 行尾是否是「冒号 + 占位符」这种模板（如 "Possible unwanted relation: {0}"、"版本：{0}"）。
+        /// 这种尾巴补喵会把代入的参数（常见是名字）粘成「孙冽喵」，看着像名字被喵化了；
+        /// 而「粗糙的{0}」「{0}或{1}」这类尾巴是属性/物品，补喵没有歧义，照旧处理。
+        /// </summary>
+        private static bool EndsWithNamePlaceholder(StringBuilder sb, int limit)
+        {
+            int k = Math.Min(limit, sb.Length) - 1;
+            if (k < 0 || sb[k] != '}')
+            {
+                return false;
+            }
+            int open = k - 1;
+            while (open >= 0 && sb[open] != '{' && sb[open] != '}')
+            {
+                char c = sb[open];
+                if (!(char.IsLetterOrDigit(c) || c == '_' || c == '.' || c == ':' || c == '-' || c == ',' || c == ' '))
+                {
+                    return false;
+                }
+                open--;
+            }
+            if (open < 0 || sb[open] != '{')
+            {
+                return false;
+            }
+            int before = open - 1;
+            while (before >= 0 && char.IsWhiteSpace(sb[before]))
+            {
+                before--;
+            }
+            return before >= 0 && (sb[before] == ':' || sb[before] == '：');
         }
 
         /// <summary>跳过行尾空白、闭合标签、右引号/括号，返回可插入句尾词的位置。</summary>
