@@ -11,7 +11,7 @@ namespace Meowify
     public class MeowifyMod : Mod
     {
         /// <summary>与 About\About.xml 的 modVersion、csproj 的 Version 保持一致。</summary>
-        public const string Version = "1.3.0";
+        public const string Version = "1.3.1";
 
         public static MeowSettings Settings;
 
@@ -284,7 +284,7 @@ namespace Meowify
             changed |= TextRow(listing, MeowifyText.L("你们 →"), ref Settings.OtherPluralPronoun,
                 MeowifyText.L("留空 = 自动用「你」的替换词 + 们。"));
 
-            SubSection(listing, MeowifyText.L("第三人称（默认留空 = 保持原样）"));
+            SubSection(listing, MeowifyText.L("第三人称（默认已填，清空 = 不替换）"));
             changed |= TextRow(listing, MeowifyText.L("他 →"), ref Settings.ThirdPronounHe, MeowifyText.L("留空 = 不替换「他」。"));
             changed |= TextRow(listing, MeowifyText.L("他们 →"), ref Settings.ThirdPronounHePlural, MeowifyText.L("留空 = 自动用「他」的替换词 + 们。"));
             changed |= TextRow(listing, MeowifyText.L("她 →"), ref Settings.ThirdPronounShe, MeowifyText.L("留空 = 不替换「她」。"));
@@ -480,9 +480,15 @@ namespace Meowify
                     Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = true;
                     Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
-                    Settings.SelfPluralPronoun = string.Empty;
+                    Settings.SelfPluralPronoun = MeowSettings.DefaultSelfPluralPronoun;
                     Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;
-                    Settings.OtherPluralPronoun = string.Empty;
+                    Settings.OtherPluralPronoun = MeowSettings.DefaultOtherPluralPronoun;
+                    Settings.ThirdPronounHe = MeowSettings.DefaultThirdPronounHe;
+                    Settings.ThirdPronounHePlural = MeowSettings.DefaultThirdPronounHePlural;
+                    Settings.ThirdPronounShe = MeowSettings.DefaultThirdPronounShe;
+                    Settings.ThirdPronounShePlural = MeowSettings.DefaultThirdPronounShePlural;
+                    Settings.ThirdPronounIt = MeowSettings.DefaultThirdPronounIt;
+                    Settings.ThirdPronounItPlural = MeowSettings.DefaultThirdPronounItPlural;
                     Settings.Kaomoji = true;
                     Settings.KaomojiMinChars = 10;
                     Settings.KaomojiChance = 100;
@@ -496,9 +502,15 @@ namespace Meowify
                     Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = true;
                     Settings.SelfPronoun = MeowSettings.DefaultSelfPronoun;
-                    Settings.SelfPluralPronoun = string.Empty;
+                    Settings.SelfPluralPronoun = MeowSettings.DefaultSelfPluralPronoun;
                     Settings.OtherPronoun = MeowSettings.DefaultOtherPronoun;
-                    Settings.OtherPluralPronoun = string.Empty;
+                    Settings.OtherPluralPronoun = MeowSettings.DefaultOtherPluralPronoun;
+                    Settings.ThirdPronounHe = MeowSettings.DefaultThirdPronounHe;
+                    Settings.ThirdPronounHePlural = MeowSettings.DefaultThirdPronounHePlural;
+                    Settings.ThirdPronounShe = MeowSettings.DefaultThirdPronounShe;
+                    Settings.ThirdPronounShePlural = MeowSettings.DefaultThirdPronounShePlural;
+                    Settings.ThirdPronounIt = MeowSettings.DefaultThirdPronounIt;
+                    Settings.ThirdPronounItPlural = MeowSettings.DefaultThirdPronounItPlural;
                     Settings.Kaomoji = true;
                     Settings.KaomojiMinChars = 5;
                     Settings.KaomojiChance = 100;

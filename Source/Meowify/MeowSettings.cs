@@ -11,6 +11,14 @@ namespace Meowify
     {
         public const string DefaultSelfPronoun = "本喵";
         public const string DefaultOtherPronoun = "主人";
+        public const string DefaultSelfPluralPronoun = "本喵们";
+        public const string DefaultOtherPluralPronoun = "主人们";
+        public const string DefaultThirdPronounHe = "他喵";
+        public const string DefaultThirdPronounHePlural = "他们喵";
+        public const string DefaultThirdPronounShe = "她喵";
+        public const string DefaultThirdPronounShePlural = "她们喵";
+        public const string DefaultThirdPronounIt = "它喵";
+        public const string DefaultThirdPronounItPlural = "它们喵";
         public const string DefaultEndWords = "喵";
         public const string DefaultEnglishEndWords = "meow\nnya\nmrrp";
         public const string DefaultCollapseSuffix = "~";
@@ -26,15 +34,15 @@ namespace Meowify
         // 人称
         public bool PronounSwap = true;
         public string SelfPronoun = DefaultSelfPronoun;
-        public string SelfPluralPronoun = string.Empty;
+        public string SelfPluralPronoun = DefaultSelfPluralPronoun;
         public string OtherPronoun = DefaultOtherPronoun;
-        public string OtherPluralPronoun = string.Empty;
-        public string ThirdPronounHe = string.Empty;
-        public string ThirdPronounHePlural = string.Empty;
-        public string ThirdPronounShe = string.Empty;
-        public string ThirdPronounShePlural = string.Empty;
-        public string ThirdPronounIt = string.Empty;
-        public string ThirdPronounItPlural = string.Empty;
+        public string OtherPluralPronoun = DefaultOtherPluralPronoun;
+        public string ThirdPronounHe = DefaultThirdPronounHe;
+        public string ThirdPronounHePlural = DefaultThirdPronounHePlural;
+        public string ThirdPronounShe = DefaultThirdPronounShe;
+        public string ThirdPronounShePlural = DefaultThirdPronounShePlural;
+        public string ThirdPronounIt = DefaultThirdPronounIt;
+        public string ThirdPronounItPlural = DefaultThirdPronounItPlural;
         public string CustomPronounsRaw = string.Empty;
 
         // 颜文字
@@ -74,15 +82,15 @@ namespace Meowify
             Scribe_Values.Look(ref SentenceEndChance, "sentenceEndChance", 100);
             Scribe_Values.Look(ref PronounSwap, "pronounSwap", true);
             Scribe_Values.Look(ref SelfPronoun, "selfPronoun", DefaultSelfPronoun);
-            Scribe_Values.Look(ref SelfPluralPronoun, "selfPluralPronoun", string.Empty);
+            Scribe_Values.Look(ref SelfPluralPronoun, "selfPluralPronoun", DefaultSelfPluralPronoun);
             Scribe_Values.Look(ref OtherPronoun, "otherPronoun", DefaultOtherPronoun);
-            Scribe_Values.Look(ref OtherPluralPronoun, "otherPluralPronoun", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounHe, "thirdPronounHe", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounHePlural, "thirdPronounHePlural", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounShe, "thirdPronounShe", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounShePlural, "thirdPronounShePlural", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounIt, "thirdPronounIt", string.Empty);
-            Scribe_Values.Look(ref ThirdPronounItPlural, "thirdPronounItPlural", string.Empty);
+            Scribe_Values.Look(ref OtherPluralPronoun, "otherPluralPronoun", DefaultOtherPluralPronoun);
+            Scribe_Values.Look(ref ThirdPronounHe, "thirdPronounHe", DefaultThirdPronounHe);
+            Scribe_Values.Look(ref ThirdPronounHePlural, "thirdPronounHePlural", DefaultThirdPronounHePlural);
+            Scribe_Values.Look(ref ThirdPronounShe, "thirdPronounShe", DefaultThirdPronounShe);
+            Scribe_Values.Look(ref ThirdPronounShePlural, "thirdPronounShePlural", DefaultThirdPronounShePlural);
+            Scribe_Values.Look(ref ThirdPronounIt, "thirdPronounIt", DefaultThirdPronounIt);
+            Scribe_Values.Look(ref ThirdPronounItPlural, "thirdPronounItPlural", DefaultThirdPronounItPlural);
             Scribe_Values.Look(ref CustomPronounsRaw, "customPronouns", string.Empty);
             Scribe_Values.Look(ref Kaomoji, "kaomoji", true);
             Scribe_Values.Look(ref KaomojiMinChars, "kaomojiMinChars", 10);
@@ -111,15 +119,15 @@ namespace Meowify
             SentenceEndChance = 100;
             PronounSwap = true;
             SelfPronoun = DefaultSelfPronoun;
-            SelfPluralPronoun = string.Empty;
+            SelfPluralPronoun = DefaultSelfPluralPronoun;
             OtherPronoun = DefaultOtherPronoun;
-            OtherPluralPronoun = string.Empty;
-            ThirdPronounHe = string.Empty;
-            ThirdPronounHePlural = string.Empty;
-            ThirdPronounShe = string.Empty;
-            ThirdPronounShePlural = string.Empty;
-            ThirdPronounIt = string.Empty;
-            ThirdPronounItPlural = string.Empty;
+            OtherPluralPronoun = DefaultOtherPluralPronoun;
+            ThirdPronounHe = DefaultThirdPronounHe;
+            ThirdPronounHePlural = DefaultThirdPronounHePlural;
+            ThirdPronounShe = DefaultThirdPronounShe;
+            ThirdPronounShePlural = DefaultThirdPronounShePlural;
+            ThirdPronounIt = DefaultThirdPronounIt;
+            ThirdPronounItPlural = DefaultThirdPronounItPlural;
             CustomPronounsRaw = string.Empty;
             Kaomoji = true;
             KaomojiMinChars = 10;

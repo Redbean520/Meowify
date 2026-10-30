@@ -20,25 +20,25 @@ namespace Meowify
         public string SelfPronoun = "本喵";
 
         /// <summary>第一人称复数（我们）；留空 = 自动用「自称 + 们」。</summary>
-        public string SelfPluralPronoun = "";
+        public string SelfPluralPronoun = "本喵们";
 
         /// <summary>第二人称称呼（你）；留空表示不替换「你」。</summary>
         public string OtherPronoun = "主人";
 
         /// <summary>第二人称复数（你们）；留空 = 自动用「称呼 + 们」。</summary>
-        public string OtherPluralPronoun = "";
+        public string OtherPluralPronoun = "主人们";
 
         /// <summary>第三人称「他 / 他们」；留空表示不替换。</summary>
-        public string ThirdPronounHe = "";
-        public string ThirdPronounHePlural = "";
+        public string ThirdPronounHe = "他喵";
+        public string ThirdPronounHePlural = "他们喵";
 
         /// <summary>第三人称「她 / 她们」；留空表示不替换。</summary>
-        public string ThirdPronounShe = "";
-        public string ThirdPronounShePlural = "";
+        public string ThirdPronounShe = "她喵";
+        public string ThirdPronounShePlural = "她们喵";
 
         /// <summary>第三人称「它 / 它们」；留空表示不替换。</summary>
-        public string ThirdPronounIt = "";
-        public string ThirdPronounItPlural = "";
+        public string ThirdPronounIt = "它喵";
+        public string ThirdPronounItPlural = "它们喵";
 
         /// <summary>自定义人称替换：每项形如「原词=替换词」，会与上面的内置项一起生效。</summary>
         public string[] CustomPronouns = new string[0];
