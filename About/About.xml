@@ -9,7 +9,7 @@
 
 它会做什么
 - 句尾加「喵」：新建殖民地 → 新建殖民地喵
-- 人称替换（默认十项全部填好）：我 / 我们 → 本喵 / 本喵们，你 / 你们 → 主人 / 主人们，他 / 他们 → 他喵 / 他们喵，她 / 她们 → 她喵 / 她们喵，它 / 它们 → 它喵 / 它们喵；每一项都能改、清空或加自定义替换表
+- 人称替换（默认十项全部填好）：我 / 我们 → 本喵 / 本喵们，你 / 你们 → 主人 / 主人们，他 / 她 → 那位、他们 / 她们 → 那几位，它 / 它们 → 那只喵 / 那几只喵；每一项都能改、清空或加自定义替换表
 - 长句末尾随机挂猫咪颜文字：内置约 90 条社区颜文字，按可爱 / 战斗 / 社交 / 工作 / 食物 / 动物 / 难过 / 恋爱八类语境挑选
 - 覆盖范围：主菜单、按钮与提示、物品 / 地块 / 植物信息卡、事件与社交日志、小人背景故事、语法规则生成的句子
 - 小人、动物、武器的名字默认保持原样（可在设置里打开）
@@ -26,7 +26,7 @@
 - 与翻译模组、HAR / 绮罗族等异种族模组兼容：只喵可见文本，颜色通道、贴图路径等机器字段原样保留
 - 仅支持 RimWorld 1.7，需要 Harmony（已声明依赖）
 
-Every line in RimWorld learns to meow: a runtime text layer that appends a sentence-ending meow, swaps ten pronoun slots (I / we, you / you-all, he / she / it and their plurals) into cat-speak, and adds context-aware cat kaomoji. Three presets, six settings tabs, live preview. The English UI switches endings to meow / nya / mrrp and gets an English settings window. No translation files, defs or saves are touched. RimWorld 1.7 + Harmony.</description>
+Every line in RimWorld learns to meow: a runtime text layer that appends a sentence-ending meow, swaps ten pronoun slots (I / we, you / you-all, he / she / it and their plurals) into cat-speak (he / she become 那位, they become 那几位, it becomes 那只喵), and adds context-aware cat kaomoji. Three presets, six settings tabs, live preview. The English UI switches endings to meow / nya / mrrp and gets an English settings window. No translation files, defs or saves are touched. RimWorld 1.7 + Harmony.</description>
   <supportedVersions><li>1.7</li></supportedVersions>
   <modDependencies>
     <li>

@@ -284,13 +284,15 @@ namespace Meowify
             changed |= TextRow(listing, MeowifyText.L("你们 →"), ref Settings.OtherPluralPronoun,
                 MeowifyText.L("留空 = 自动用「你」的替换词 + 们。"));
 
-            SubSection(listing, MeowifyText.L("第三人称（默认已填，清空 = 不替换）"));
+            SubSection(listing, MeowifyText.L("第三人称（猫娘称呼，清空 = 不替换）"));
             changed |= TextRow(listing, MeowifyText.L("他 →"), ref Settings.ThirdPronounHe, MeowifyText.L("留空 = 不替换「他」。"));
             changed |= TextRow(listing, MeowifyText.L("他们 →"), ref Settings.ThirdPronounHePlural, MeowifyText.L("留空 = 自动用「他」的替换词 + 们。"));
             changed |= TextRow(listing, MeowifyText.L("她 →"), ref Settings.ThirdPronounShe, MeowifyText.L("留空 = 不替换「她」。"));
             changed |= TextRow(listing, MeowifyText.L("她们 →"), ref Settings.ThirdPronounShePlural, MeowifyText.L("留空 = 自动用「她」的替换词 + 们。"));
             changed |= TextRow(listing, MeowifyText.L("它 →"), ref Settings.ThirdPronounIt, MeowifyText.L("留空 = 不替换「它」。"));
             changed |= TextRow(listing, MeowifyText.L("它们 →"), ref Settings.ThirdPronounItPlural, MeowifyText.L("留空 = 自动用「它」的替换词 + 们。"));
+            listing.Label(MeowifyText.L("默认：他 / 她 → 那位，他们 / 她们 → 那几位，它 → 那只喵，它们 → 那几只喵。中文里「他 / 她」共用「那位」会丢性别，想区分就自己改成「那孩子 / 那丫头」之类。"));
+            listing.Gap(4f);
 
             Section(listing, MeowifyText.L("自定义替换表"));
             changed |= Entry(listing, MeowifyText.L("每行一个，格式「原词=替换词」："), ref Settings.CustomPronounsRaw, 3);

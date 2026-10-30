@@ -1,7 +1,7 @@
 # Steam 工坊发布文案（中英合一，可直接复制）
 
 > 当前发布：**1.3.1**（已打包：`release\Meowify\Meowify-1.3.1\` 与 `Meowify-1.3.1.zip`，910,384 B，含 `About/PublishedFileId.txt`）｜ 目标：RimWorld 1.7 ｜ 依赖：Harmony（brrainz.harmony）
-> 更新日期：2026-10-31（1.3.1：人称十项默认全部填好；中英文案合并到本文档）
+> 更新日期：2026-10-31（1.3.1：人称十项默认全部填好、第三人称改为猫娘称呼「那位 / 那几位 / 那只喵」；中英文案合并到本文档）
 >
 > 格式说明：工坊描述只认 **Steam BBCode**，不认 Markdown / HTML。正文按技能要求写：不用 `[list]` / `[*]` / `[img]` / `[quote]` / `[code]`，标题从 `[h2]` 起，行首 `- ` 当子弹点，标签全部成对（`[hr]` 单独用），不写更新日志。
 > 中文文案在 ①–⑧，英文文案在 ⑨–⑬；工坊页面按语言贴对应那份，也可以中文正文末尾附英文短段。
@@ -24,7 +24,7 @@
 ## ② 摘要 / 列表短描述
 
 ```text
-给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、十个人称全填好（我→本喵、你→主人、他→他喵……）、长句随机猫咪颜文字。运行时生效，不改翻译文件；三种一键预设 + 加喵概率、排除片段等细调 + 实时预览，英文界面也能喵。需要 Harmony。
+给 RimWorld 1.7 的全部文本加一声「喵」：句尾喵、十个人称全填好（我→本喵、你→主人、他→那位……）、长句随机猫咪颜文字。运行时生效，不改翻译文件；三种一键预设 + 加喵概率、排除片段等细调 + 实时预览，英文界面也能喵。需要 Harmony。
 ```
 
 ## ③ 描述正文（BBCode，整段粘贴进工坊描述框）
@@ -36,7 +36,7 @@
 
 [h2]功能[/h2]
 - 句尾加喵：新建殖民地 → 新建殖民地喵
-- 人称替换（十项默认全部填好）：我 / 我们 → 本喵 / 本喵们，你 / 你们 → 主人 / 主人们，他 / 他们 → 他喵 / 他们喵，她 / 她们 → 她喵 / 她们喵，它 / 它们 → 它喵 / 它们喵；每一项都能改、清空，还能加自定义替换表
+- 人称替换（十项默认全部填好）：我 / 我们 → 本喵 / 本喵们，你 / 你们 → 主人 / 主人们，他 / 她 → 那位、他们 / 她们 → 那几位，它 / 它们 → 那只喵 / 那几只喵；每一项都能改、清空，还能加自定义替换表
 - 长句末尾随机追加猫咪颜文字：（=^ω^=）（≧▽≦）（｡･ω･｡）……
 - 覆盖范围：主菜单、按钮、提示、物品 / 地块 / 植物信息卡、事件与社交日志、小人背景故事，以及语法规则生成的句子
 - 小人 / 动物 / 武器的名字保持原样（名字带喵会很怪）；想要连名字一起喵，可以在设置里打开
@@ -136,7 +136,7 @@ Meowify — every line in RimWorld now says meow
 ## ⑩ Short description
 
 ```text
-Adds "meow" to every line of RimWorld 1.7: sentence-ending meow, ten pronoun slots pre-filled with cat-speak (I -> this cat, you -> master, he -> he-meow...), random cat kaomoji on longer text. Runtime only, no translation files touched. Three presets plus fine-tuning and live preview. English UI supported. Requires Harmony.
+Adds "meow" to every line of RimWorld 1.7: sentence-ending meow, ten pronoun slots pre-filled with cat-speak (I -> this cat, you -> master, he / she -> that one, it -> that meow...), random cat kaomoji on longer text. Runtime only, no translation files touched. Three presets plus fine-tuning and live preview. English UI supported. Requires Harmony.
 ```
 
 ## ⑪ BBCode body
@@ -148,7 +148,7 @@ A pure text-layer mod: it does not edit translation files, defs or saves. It onl
 
 [h2]Features[/h2]
 - Sentence-ending word: "New colony" -> "New colony, meow"
-- Pronouns: ten slots pre-filled with cat-speak (I / we, you / you-all, he / she / it and their plurals); every slot editable, clearable or extendable with a custom table
+- Pronouns: ten slots pre-filled with cat-speak (I / we -> this cat, you / you-all -> master, he / she -> that one, it -> that meow, with plurals); every slot editable, clearable or extendable with a custom table
 - Random cat kaomoji at the end of longer text: (=^w^=) (^v^) ...
 - Covers the main menu, buttons, tooltips, item / terrain / plant info cards, event logs, pawn backstories and grammar-generated sentences
 - Pawn, animal and weapon names stay untouched by default (a meow in a name looks odd); a setting can meowify names too

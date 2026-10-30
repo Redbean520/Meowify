@@ -28,17 +28,21 @@ namespace Meowify
         /// <summary>第二人称复数（你们）；留空 = 自动用「称呼 + 们」。</summary>
         public string OtherPluralPronoun = "主人们";
 
+        // 第三人称不采用「后缀喵」（那会变成「他喵」「他们喵」，前者是他妈的谐音、后者语法不通），
+        // 改成猫娘语境里的称呼：人 → 那位 / 那几位；非人 → 那只喵 / 那几只喵。
+        // 男女在中文里共用「那位」会丢性别，想要区分就在设置里改成「那孩子 / 那丫头」之类的自定义词。
+
         /// <summary>第三人称「他 / 他们」；留空表示不替换。</summary>
-        public string ThirdPronounHe = "他喵";
-        public string ThirdPronounHePlural = "他们喵";
+        public string ThirdPronounHe = "那位";
+        public string ThirdPronounHePlural = "那几位";
 
         /// <summary>第三人称「她 / 她们」；留空表示不替换。</summary>
-        public string ThirdPronounShe = "她喵";
-        public string ThirdPronounShePlural = "她们喵";
+        public string ThirdPronounShe = "那位";
+        public string ThirdPronounShePlural = "那几位";
 
         /// <summary>第三人称「它 / 它们」；留空表示不替换。</summary>
-        public string ThirdPronounIt = "它喵";
-        public string ThirdPronounItPlural = "它们喵";
+        public string ThirdPronounIt = "那只喵";
+        public string ThirdPronounItPlural = "那几只喵";
 
         /// <summary>自定义人称替换：每项形如「原词=替换词」，会与上面的内置项一起生效。</summary>
         public string[] CustomPronouns = new string[0];
@@ -498,7 +502,7 @@ namespace Meowify
                     }
                 }
 
-                // 先看是否已经是替换结果（幂等：避免「他」→「他喵」再变「他喵喵」）
+                // 先看是否已经是替换结果（幂等：避免「他」→「那位」再被拆开重复处理）
                 bool emitted = false;
                 for (int p = 0; p < pairs.Length; p++)
                 {
