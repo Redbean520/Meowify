@@ -49,6 +49,12 @@ namespace Meowify
         /// <summary>句尾词候选；每个句子按原文哈希确定性地挑一个。空数组 = 不加句尾词。</summary>
         public string[] EndWords = { "喵" };
 
+        /// <summary>英文文本使用的句尾词（英文界面生效，插入时会自动在前面补空格）。</summary>
+        public string[] EnglishEndWords = { "meow", "nya", "mrrp" };
+
+        /// <summary>英文界面模式：句尾词改用 EnglishEndWords，并带前导空格。</summary>
+        public bool EnglishMode;
+
         /// <summary>句尾词出现概率（0-100）。100 = 每句都加；调低后按原文哈希确定性跳过一部分句子。</summary>
         public int SentenceEndChance = 100;
 
@@ -279,6 +285,7 @@ namespace Meowify
         {
             public MeowOptions Options;
             public string[] EndWords;
+            public bool EnglishMode;
             public string[][] PronounPairs;
             public string[] ProtectedWords;
             public string[] ExcludedPhrases;
@@ -293,7 +300,18 @@ namespace Meowify
             {
                 Rules rules = new Rules();
                 rules.Options = options;
-                rules.EndWords = CleanList(options.EndWords);
+                rules.EnglishMode = options.EnglishMode;
+                rules.EndWords = CleanList(rules.EnglishMode ? options.EnglishEndWords : options.EndWords);
+                if (rules.EnglishMode)
+                {
+                    for (int i = 0; i < rules.EndWords.Length; i++)
+                    {
+                        if (rules.EndWords[i].Length > 0 && rules.EndWords[i][0] != ' ')
+                        {
+                            rules.EndWords[i] = " " + rules.EndWords[i];
+                        }
+                    }
+                }
                 rules.ProtectedWords = MergeProtected(options.ExtraProtectedWords);
                 rules.ExcludedPhrases = CleanList(options.ExcludedPhrases);
                 rules.IncludeKeywords = CleanList(options.IncludeKeywords);
@@ -583,10 +601,10 @@ namespace Meowify
                     }
                 }
 
-                if (SentenceEndChars.Contains(c))
+                if (IsSentenceEndChar(c, rules, line, i))
                 {
                     int j = i;
-                    while (j < len && SentenceEndChars.Contains(line[j]))
+                    while (j < len && IsSentenceEndChar(line[j], rules, line, j))
                     {
                         j++;
                     }
@@ -624,7 +642,7 @@ namespace Meowify
 
             int endInsertAt = TrailingDecorationStart(sb);
             char last = LastVisibleChar(sb, endInsertAt);
-            if (ShouldAddEndWord(line, -1, rules) && last != '\0' && !SentenceEndChars.Contains(last) &&
+            if (ShouldAddEndWord(line, -1, rules) && last != '\0' && !IsSentenceEnd(last, rules) &&
                 !EndsWithEndWordOrSuffix(sb, endInsertAt, rules) && !EndsWithNamePlaceholder(sb, endInsertAt))
             {
                 sb.Insert(endInsertAt, endWord);
@@ -649,7 +667,7 @@ namespace Meowify
             {
                 return result;
             }
-            if (!HasSentenceEndPunctuation(result))
+            if (!HasSentenceEndPunctuation(result, rules))
             {
                 return result;
             }
@@ -843,7 +861,7 @@ namespace Meowify
         }
 
         /// <summary>可见文本里是否出现了句末标点。</summary>
-        private static bool HasSentenceEndPunctuation(string text)
+        private static bool HasSentenceEndPunctuation(string text, Rules rules)
         {
             int i = 0;
             int len = text.Length;
@@ -868,7 +886,7 @@ namespace Meowify
                         continue;
                     }
                 }
-                if (SentenceEndChars.Contains(c))
+                if (IsSentenceEnd(c, rules))
                 {
                     return true;
                 }
@@ -941,11 +959,11 @@ namespace Meowify
                     i++;
                     continue;
                 }
-                if (SentenceEndChars.Contains(c))
+                if (IsSentenceEnd(c, rules))
                 {
                     CollapseRepeatedTail(sb, rules);
                     int j = i;
-                    while (j < len && SentenceEndChars.Contains(text[j]))
+                    while (j < len && IsSentenceEnd(text[j], rules))
                     {
                         j++;
                     }
@@ -1043,6 +1061,29 @@ namespace Meowify
                 before--;
             }
             return before >= 0 && (sb[before] == ':' || sb[before] == '：');
+        }
+
+        /// <summary>句末标点判定：中文标点恒定；英文模式额外把「.」当句末（1.7 这类数字里的点除外）。</summary>
+        private static bool IsSentenceEndChar(char c, Rules rules, string text, int index)
+        {
+            if (SentenceEndChars.Contains(c))
+            {
+                return true;
+            }
+            if (!rules.EnglishMode || c != '.')
+            {
+                return false;
+            }
+            // 只有夹在两个数字之间的点才当成小数点（1.7 / 1.2.3）；句末的 3.14. 仍算句号。
+            bool prevDigit = index > 0 && char.IsDigit(text[index - 1]);
+            bool nextDigit = index + 1 < text.Length && char.IsDigit(text[index + 1]);
+            return !(prevDigit && nextDigit);
+        }
+
+        /// <summary>单个字符是否句末标点（用于行尾判断与折叠，不做数字上下文检查）。</summary>
+        private static bool IsSentenceEnd(char c, Rules rules)
+        {
+            return SentenceEndChars.Contains(c) || (rules.EnglishMode && c == '.');
         }
 
         /// <summary>跳过行尾空白、闭合标签、右引号/括号，返回可插入句尾词的位置。</summary>
@@ -1262,39 +1303,53 @@ namespace Meowify
             {
                 "战斗", "攻击", "受伤", "流血", "死亡", "杀死", "击杀", "射击", "爆炸", "袭击",
                 "敌人", "开火", "伤口", "疼痛", "昏迷", "失血", "战争", "突袭", "格挡", "中弹"
+            ,
+                "attack", "enemy", "wound", "bleed", "death", "kill", "shot", "explosion", "raid", "fight"
             };
 
             private static readonly string[] SadKeys =
             {
                 "哭", "悲伤", "难过", "崩溃", "绝望", "沮丧", "哀悼", "痛苦", "不幸", "生病",
                 "死亡", "逝去", "发疯", "精神崩溃"
+            ,
+                "sad", "cry", "grief", "despair", "died", "death", "breakdown", "ill"
             };
 
             private static readonly string[] SocialKeys =
             {
                 "社交", "交谈", "聊天", "朋友", "关系", "恋人", "结婚", "婚姻", "争吵", "侮辱",
                 "调情", "派对", "结识", "拜访", "求婚", "好感", "招募", "访客"
+            ,
+                "chat", "talk", "social", "friend", "visit"
             };
 
             private static readonly string[] LoveKeys =
             {
                 "爱", "恋爱", "恋人", "亲密", "亲吻", "拥抱", "结婚", "伴侣", "心动", "甜"
+            ,
+                "love", "lover", "romance", "marry", "wedding", "date"
             };
 
             private static readonly string[] WorkKeys =
             {
                 "建造", "采矿", "砍伐", "种植", "收获", "烹饪", "制作", "研究", "工作", "搬运",
                 "修理", "缝制", "挖掘", "打扫", "建造中", "蓝图"
+            ,
+                "work", "job", "mine", "research", "build", "craft", "harvest"
             };
 
             private static readonly string[] FoodKeys =
             {
                 "食物", "进食", "吃饭", "吃", "饭", "喝", "饿", "饱", "美味", "饥饿", "营养", "腐烂", "餐", "料理", "烹饪"
+            ,
+                "food", "meal", "eat", "hungry", "delicious", "cook", "raw"
             };
 
             private static readonly string[] AnimalKeys =
             {
                 "动物", "猫", "狗", "驯服", "训练", "宠物", "鸟", "牛", "羊", "兔", "兽", "绮罗", "喵"
+            ,
+                "cat", "dog", "animal", "pet", "tame", "puppy", "kitten"
             };
 
             /// <summary>所有内置池合并（幂等检测与调试用）。</summary>

@@ -7,7 +7,11 @@
 
 v1.3.0：设置界面重做成「预设 / 句尾 / 人称 / 颜文字 / 范围 / 高级」六个标签页；「我·我们·你·你们·他·她·它…」十个人称都能替换，还能自定义替换表；内置 90 条社区猫咪颜文字并按语境挑选；小人、动物、武器等名字默认不加喵。
 
+v1.4（测试版）：英文界面支持 —— 游戏语言为英文时句尾词自动换成 meow / nya / mrrp，设置界面双语；按语境挑颜文字也认英文关键词。中文界面行为不变。
+
 v1.2.0：新增「加喵概率」（可只给一部分句子加喵）、「排除片段」（个别模组的特殊文本原样放行），并修掉句末偶尔出现「喵喵」连写的问题。
+
+In an English UI the sentence-ending word becomes meow / nya / mrrp and the settings window is bilingual, so English players get cat-speak instead of a Chinese character.
 
 Every string in RimWorld learns to meow: UI keyed text, def labels and descriptions, generated sentences and names. Pronouns can become "本喵 / 主人", long sentences get random cat kaomoji, and everything is adjustable in mod settings. Requires Harmony.</description>
   <supportedVersions><li>1.7</li></supportedVersions>

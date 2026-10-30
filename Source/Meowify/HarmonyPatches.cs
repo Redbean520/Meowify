@@ -101,6 +101,9 @@ namespace Meowify
 
         internal static void InjectIntoDefs_Prefix(DefInjectionPackage __instance)
         {
+            // 语言数据已经加载，这里重新应用一次设置，英文界面才能用 meow 而不是汉字「喵」注入 def 文本。
+            MeowifyMod.ApplySettings();
+
             if (!Meowifier.Options.ChannelDefInjected)
             {
                 return;
@@ -131,6 +134,10 @@ namespace Meowify
 
         internal static void AfterImpliedDefs_Postfix()
         {
+            // 语言数据这时候才真正加载完（LanguageDatabase.activeLanguage 在模组构造之后才赋值），
+            // 所以在这里重新应用一次设置，让英文界面能正确切到 meow 句尾词。
+            MeowifyMod.ApplySettings();
+
             if (!Meowifier.Options.ChannelDefSweep)
             {
                 return;

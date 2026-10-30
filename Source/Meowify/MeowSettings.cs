@@ -12,12 +12,14 @@ namespace Meowify
         public const string DefaultSelfPronoun = "本喵";
         public const string DefaultOtherPronoun = "主人";
         public const string DefaultEndWords = "喵";
+        public const string DefaultEnglishEndWords = "meow\nnya\nmrrp";
         public const string DefaultCollapseSuffix = "~";
         public const string DefaultKaomojiList = "";
 
         // 句尾
         public bool SentenceEnd = true;
         public string EndWordsRaw = DefaultEndWords;
+        public string EnglishEndWordsRaw = DefaultEnglishEndWords;
         public int MinChars = 2;
         public int SentenceEndChance = 100;
 
@@ -67,6 +69,7 @@ namespace Meowify
         {
             Scribe_Values.Look(ref SentenceEnd, "sentenceEnd", true);
             Scribe_Values.Look(ref EndWordsRaw, "endWords", DefaultEndWords);
+            Scribe_Values.Look(ref EnglishEndWordsRaw, "englishEndWords", DefaultEnglishEndWords);
             Scribe_Values.Look(ref MinChars, "minChars", 2);
             Scribe_Values.Look(ref SentenceEndChance, "sentenceEndChance", 100);
             Scribe_Values.Look(ref PronounSwap, "pronounSwap", true);
@@ -103,6 +106,7 @@ namespace Meowify
         {
             SentenceEnd = true;
             EndWordsRaw = DefaultEndWords;
+            EnglishEndWordsRaw = DefaultEnglishEndWords;
             MinChars = 2;
             SentenceEndChance = 100;
             PronounSwap = true;
@@ -140,6 +144,7 @@ namespace Meowify
             MeowOptions options = new MeowOptions();
             options.SentenceEnd = SentenceEnd;
             options.EndWords = ParseList(EndWordsRaw);
+            options.EnglishEndWords = ParseList(EnglishEndWordsRaw);
             options.MinChars = MinChars < 1 ? 1 : MinChars;
             options.SentenceEndChance = Clamp(SentenceEndChance, 0, 100);
             options.PronounSwap = PronounSwap;

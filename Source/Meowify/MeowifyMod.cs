@@ -15,14 +15,26 @@ namespace Meowify
 
         public static MeowSettings Settings;
 
-        private static readonly string[] PreviewSamples =
+        private static string[] PreviewSamples
         {
-            "你的殖民者发现了一片富含钢铁的矿脉。我们发财了！",
-            "我刚刚做了一把迷你炮塔。",
-            "敌人正在接近，准备战斗！"
-        };
+            get
+            {
+                return new[]
+                {
+                    MeowifyText.L("你的殖民者发现了一片富含钢铁的矿脉。我们发财了！"),
+                    MeowifyText.L("我刚刚做了一把迷你炮塔。"),
+                    MeowifyText.L("敌人正在接近，准备战斗！")
+                };
+            }
+        }
 
-        private static readonly string[] TabLabels = { "预设", "句尾", "人称", "颜文字", "范围", "高级" };
+        private static string[] TabLabels
+        {
+            get
+            {
+                return new[] { MeowifyText.L("预设"), MeowifyText.L("句尾"), MeowifyText.L("人称"), MeowifyText.L("颜文字"), MeowifyText.L("范围"), MeowifyText.L("高级") };
+            }
+        }
 
         private enum SettingsTab
         {
@@ -49,23 +61,24 @@ namespace Meowify
             Settings = GetSettings<MeowSettings>();
             ApplySettings();
             HarmonyPatches.Initialize();
-            Log.Message("[Meowify] v" + Version + " 已加载，全场开始喵化。喵。");
+            Log.Message("[Meowify] v" + Version + MeowifyText.L(" 已加载，全场开始喵化。喵。"));
 
             if (Prefs.DevMode)
             {
-                Log.Message("[Meowify] 样例: " + Meowifier.Meowify("你的殖民者发现了一片富含钢铁的矿脉。"));
+                Log.Message(MeowifyText.L("[Meowify] 样例: ") + Meowifier.Meowify(MeowifyText.L("你的殖民者发现了一片富含钢铁的矿脉。")));
             }
         }
 
         public static void ApplySettings()
         {
             Meowifier.Options = Settings.ToOptions();
+            Meowifier.Options.EnglishMode = MeowifyText.IsEnglishUI();
             Meowifier.ClearCache();
         }
 
         public override string SettingsCategory()
         {
-            return "喵化世界 Meowify";
+            return MeowifyText.L("喵化世界 Meowify");
         }
 
         public override void DoSettingsWindowContents(Rect inRect)
@@ -75,7 +88,7 @@ namespace Meowify
             // ---------------------------------------------------------------- 头部
             GameFont previousFont = Text.Font;
             Text.Font = GameFont.Medium;
-            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - 160f, 30f), "喵化世界 Meowify");
+            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - 160f, 30f), MeowifyText.L("喵化世界 Meowify"));
             Text.Font = GameFont.Small;
             GUI.color = new Color(1f, 0.72f, 0.82f);
             Widgets.Label(new Rect(inRect.xMax - 150f, inRect.y + 6f, 150f, 24f), "v" + Version);
@@ -139,7 +152,7 @@ namespace Meowify
 
             // ---------------------------------------------------------------- 底部固定栏
             Rect footer = new Rect(inRect.x, inRect.yMax - 44f, inRect.width, 40f);
-            if (Widgets.ButtonText(new Rect(footer.x, footer.y + 4f, 180f, 32f), "恢复默认"))
+            if (Widgets.ButtonText(new Rect(footer.x, footer.y + 4f, 180f, 32f), MeowifyText.L("恢复默认")))
             {
                 Settings.ResetToDefaults();
                 ApplySettings();
@@ -147,7 +160,7 @@ namespace Meowify
             }
             GUI.color = new Color(0.85f, 0.85f, 0.85f);
             Widgets.Label(new Rect(footer.x + 196f, footer.y + 10f, footer.width - 196f, 24f),
-                "改动即时生效，关闭窗口时自动保存。喵化世界 Meowify v" + Version);
+                MeowifyText.L("改动即时生效，关闭窗口时自动保存。喵化世界 Meowify v") + Version);
             GUI.color = Color.white;
 
             if (changed)
@@ -164,7 +177,7 @@ namespace Meowify
                 case SettingsTab.Presets:
                     return 360f;
                 case SettingsTab.Sentence:
-                    return 470f;
+                    return 610f;
                 case SettingsTab.Pronouns:
                     return 760f;
                 case SettingsTab.Kaomoji:
@@ -180,40 +193,40 @@ namespace Meowify
         private void DrawPresetsTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "一键预设");
+            Section(listing, MeowifyText.L("一键预设"));
             Rect presetRow = listing.GetRect(34f);
             float buttonWidth = (presetRow.width - 12f) / 3f;
             Rect lightRect = new Rect(presetRow.x, presetRow.y, buttonWidth, 32f);
             Rect standardRect = new Rect(presetRow.x + buttonWidth + 6f, presetRow.y, buttonWidth, 32f);
             Rect feverRect = new Rect(presetRow.x + (buttonWidth + 6f) * 2f, presetRow.y, buttonWidth, 32f);
-            TooltipHandler.TipRegion(lightRect, "小喵一声：只加句尾喵，改动最小，适合怕吵的玩家。");
-            TooltipHandler.TipRegion(standardRect, "猫娘日常：句尾喵 + 我→本喵 / 你→主人 + 长句颜文字，QQ喵喵助手同款。");
-            TooltipHandler.TipRegion(feverRect, "喵力全开：句尾词 喵/喵呜/喵～、最短字数 1、长句必加颜文字。");
-            if (Widgets.ButtonText(lightRect, "小喵一声"))
+            TooltipHandler.TipRegion(lightRect, MeowifyText.L("小喵一声：只加句尾喵，改动最小，适合怕吵的玩家。"));
+            TooltipHandler.TipRegion(standardRect, MeowifyText.L("猫娘日常：句尾喵 + 我→本喵 / 你→主人 + 长句颜文字，QQ喵喵助手同款。"));
+            TooltipHandler.TipRegion(feverRect, MeowifyText.L("喵力全开：句尾词 喵/喵呜/喵～、最短字数 1、长句必加颜文字。"));
+            if (Widgets.ButtonText(lightRect, MeowifyText.L("小喵一声")))
             {
                 ApplyPreset(Preset.Light);
                 changed = true;
             }
-            if (Widgets.ButtonText(standardRect, "猫娘日常"))
+            if (Widgets.ButtonText(standardRect, MeowifyText.L("猫娘日常")))
             {
                 ApplyPreset(Preset.Standard);
                 changed = true;
             }
-            if (Widgets.ButtonText(feverRect, "喵力全开"))
+            if (Widgets.ButtonText(feverRect, MeowifyText.L("喵力全开")))
             {
                 ApplyPreset(Preset.Fever);
                 changed = true;
             }
             listing.Gap(6f);
 
-            Section(listing, "效果预览");
+            Section(listing, MeowifyText.L("效果预览"));
             for (int i = 0; i < PreviewSamples.Length; i++)
             {
                 string preview = Meowifier.Meowify(PreviewSamples[i]);
                 listing.Label("· " + preview, 60f);
             }
             listing.Gap(6f);
-            listing.Label("想要更细的控制，用上面的标签页：句尾、人称、颜文字、范围、高级。");
+            listing.Label(MeowifyText.L("想要更细的控制，用上面的标签页：句尾、人称、颜文字、范围、高级。"));
 
             changedRef |= changed;
         }
@@ -222,22 +235,25 @@ namespace Meowify
         private void DrawSentenceTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "句尾语气词");
-            changed |= Checkbox(listing, "句尾加语气词", ref Settings.SentenceEnd,
-                "按中英文标点断句，在句末标点前插入句尾词；没有标点时补在行尾。");
-            changed |= Slider(listing, "最短喵化字数", ref Settings.MinChars, 1f, 8f, 0.7f,
-                "少于这个可见字数的文本不加句尾词，避免把按钮、图标说明撑破。");
-            changed |= Slider(listing, "加喵概率 %", ref Settings.SentenceEndChance, 0f, 100f, 0.7f,
-                "100 = 每句都加；调低后只给一部分句子加喵。按原文哈希决定，同一句结果固定。");
-            changed |= Entry(listing, "句尾词候选（每行一个，随机挑一个；留空 = 不加）：",
+            Section(listing, MeowifyText.L("句尾语气词"));
+            changed |= Checkbox(listing, MeowifyText.L("句尾加语气词"), ref Settings.SentenceEnd,
+                MeowifyText.L("按中英文标点断句，在句末标点前插入句尾词；没有标点时补在行尾。"));
+            changed |= Slider(listing, MeowifyText.L("最短喵化字数"), ref Settings.MinChars, 1f, 8f, 0.7f,
+                MeowifyText.L("少于这个可见字数的文本不加句尾词，避免把按钮、图标说明撑破。"));
+            changed |= Slider(listing, MeowifyText.L("加喵概率 %"), ref Settings.SentenceEndChance, 0f, 100f, 0.7f,
+                MeowifyText.L("100 = 每句都加；调低后只给一部分句子加喵。按原文哈希决定，同一句结果固定。"));
+            changed |= Entry(listing, MeowifyText.L("句尾词候选（每行一个，随机挑一个；留空 = 不加）："),
                 ref Settings.EndWordsRaw, EntryLines(Settings.EndWordsRaw, 2, 6));
+            changed |= Entry(listing, MeowifyText.L("英文句尾词（每行一个，仅英文界面生效）："),
+                ref Settings.EnglishEndWordsRaw, EntryLines(Settings.EnglishEndWordsRaw, 2, 6));
+            listing.Label(MeowifyText.L("英文界面下句尾词会自动带上前导空格，例如 Hello. → Hello meow."));
             listing.Gap(6f);
 
-            Section(listing, "重复句尾词");
-            changed |= Checkbox(listing, "折叠连续句尾词", ref Settings.CollapseRepeated,
-                "开：句末出现「喵喵」「喵呜喵呜」时折叠成一个，再接后缀。");
-            changed |= TextRow(listing, "折叠后的后缀：", ref Settings.CollapseSuffix,
-                "折叠后接的符号，默认 ~，于是「喵喵。」变成「喵~。」。留空就不加后缀。");
+            Section(listing, MeowifyText.L("重复句尾词"));
+            changed |= Checkbox(listing, MeowifyText.L("折叠连续句尾词"), ref Settings.CollapseRepeated,
+                MeowifyText.L("开：句末出现「喵喵」「喵呜喵呜」时折叠成一个，再接后缀。"));
+            changed |= TextRow(listing, MeowifyText.L("折叠后的后缀："), ref Settings.CollapseSuffix,
+                MeowifyText.L("折叠后接的符号，默认 ~，于是「喵喵。」变成「喵~。」。留空就不加后缀。"));
 
             changedRef |= changed;
         }
@@ -246,41 +262,41 @@ namespace Meowify
         private void DrawPronounsTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "人称替换");
-            changed |= Checkbox(listing, "替换人称代词", ref Settings.PronounSwap,
-                "每个代词都可以单独设定；留空 = 这个词不替换。");
+            Section(listing, MeowifyText.L("人称替换"));
+            changed |= Checkbox(listing, MeowifyText.L("替换人称代词"), ref Settings.PronounSwap,
+                MeowifyText.L("每个代词都可以单独设定；留空 = 这个词不替换。"));
             if (!Settings.PronounSwap)
             {
-                listing.Label("已关闭人称替换。");
+                listing.Label(MeowifyText.L("已关闭人称替换。"));
                 changedRef |= changed;
                 return;
             }
 
-            SubSection(listing, "第一人称");
-            changed |= TextRow(listing, "我 →", ref Settings.SelfPronoun,
-                "默认：本喵。留空 = 不替换「我」。");
-            changed |= TextRow(listing, "我们 →", ref Settings.SelfPluralPronoun,
-                "留空 = 自动用「我」的替换词 + 们。");
+            SubSection(listing, MeowifyText.L("第一人称"));
+            changed |= TextRow(listing, MeowifyText.L("我 →"), ref Settings.SelfPronoun,
+                MeowifyText.L("默认：本喵。留空 = 不替换「我」。"));
+            changed |= TextRow(listing, MeowifyText.L("我们 →"), ref Settings.SelfPluralPronoun,
+                MeowifyText.L("留空 = 自动用「我」的替换词 + 们。"));
 
-            SubSection(listing, "第二人称");
-            changed |= TextRow(listing, "你 →", ref Settings.OtherPronoun,
-                "默认：主人。留空 = 不替换「你」。");
-            changed |= TextRow(listing, "你们 →", ref Settings.OtherPluralPronoun,
-                "留空 = 自动用「你」的替换词 + 们。");
+            SubSection(listing, MeowifyText.L("第二人称"));
+            changed |= TextRow(listing, MeowifyText.L("你 →"), ref Settings.OtherPronoun,
+                MeowifyText.L("默认：主人。留空 = 不替换「你」。"));
+            changed |= TextRow(listing, MeowifyText.L("你们 →"), ref Settings.OtherPluralPronoun,
+                MeowifyText.L("留空 = 自动用「你」的替换词 + 们。"));
 
-            SubSection(listing, "第三人称（默认留空 = 保持原样）");
-            changed |= TextRow(listing, "他 →", ref Settings.ThirdPronounHe, "留空 = 不替换「他」。");
-            changed |= TextRow(listing, "他们 →", ref Settings.ThirdPronounHePlural, "留空 = 自动用「他」的替换词 + 们。");
-            changed |= TextRow(listing, "她 →", ref Settings.ThirdPronounShe, "留空 = 不替换「她」。");
-            changed |= TextRow(listing, "她们 →", ref Settings.ThirdPronounShePlural, "留空 = 自动用「她」的替换词 + 们。");
-            changed |= TextRow(listing, "它 →", ref Settings.ThirdPronounIt, "留空 = 不替换「它」。");
-            changed |= TextRow(listing, "它们 →", ref Settings.ThirdPronounItPlural, "留空 = 自动用「它」的替换词 + 们。");
+            SubSection(listing, MeowifyText.L("第三人称（默认留空 = 保持原样）"));
+            changed |= TextRow(listing, MeowifyText.L("他 →"), ref Settings.ThirdPronounHe, MeowifyText.L("留空 = 不替换「他」。"));
+            changed |= TextRow(listing, MeowifyText.L("他们 →"), ref Settings.ThirdPronounHePlural, MeowifyText.L("留空 = 自动用「他」的替换词 + 们。"));
+            changed |= TextRow(listing, MeowifyText.L("她 →"), ref Settings.ThirdPronounShe, MeowifyText.L("留空 = 不替换「她」。"));
+            changed |= TextRow(listing, MeowifyText.L("她们 →"), ref Settings.ThirdPronounShePlural, MeowifyText.L("留空 = 自动用「她」的替换词 + 们。"));
+            changed |= TextRow(listing, MeowifyText.L("它 →"), ref Settings.ThirdPronounIt, MeowifyText.L("留空 = 不替换「它」。"));
+            changed |= TextRow(listing, MeowifyText.L("它们 →"), ref Settings.ThirdPronounItPlural, MeowifyText.L("留空 = 自动用「它」的替换词 + 们。"));
 
-            Section(listing, "自定义替换表");
-            changed |= Entry(listing, "每行一个，格式「原词=替换词」：", ref Settings.CustomPronounsRaw, 3);
-            listing.Label("例如：俺=本喵、咱=本喵、阁下=主人。会和上面的内置项一起生效。");
+            Section(listing, MeowifyText.L("自定义替换表"));
+            changed |= Entry(listing, MeowifyText.L("每行一个，格式「原词=替换词」："), ref Settings.CustomPronounsRaw, 3);
+            listing.Label(MeowifyText.L("例如：俺=本喵、咱=本喵、阁下=主人。会和上面的内置项一起生效。"));
             listing.Gap(4f);
-            listing.Label("保护词：含有「我 / 你 / 他」但不是代词的词（迷你、自我、其他、吉他…）会整体跳过，不会被拆开。");
+            listing.Label(MeowifyText.L("保护词：含有「我 / 你 / 他」但不是代词的词（迷你、自我、其他、吉他…）会整体跳过，不会被拆开。"));
 
             changedRef |= changed;
         }
@@ -289,24 +305,24 @@ namespace Meowify
         private void DrawKaomojiTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "句末颜文字");
-            changed |= Checkbox(listing, "长句追加颜文字", ref Settings.Kaomoji,
-                "可见字数达到阈值、且含句读的文本，末尾按概率追加一个猫咪颜文字。");
+            Section(listing, MeowifyText.L("句末颜文字"));
+            changed |= Checkbox(listing, MeowifyText.L("长句追加颜文字"), ref Settings.Kaomoji,
+                MeowifyText.L("可见字数达到阈值、且含句读的文本，末尾按概率追加一个猫咪颜文字。"));
             if (Settings.Kaomoji)
             {
-                changed |= Slider(listing, "触发概率 %", ref Settings.KaomojiChance, 0f, 100f, 0.7f,
-                    "100 = 每句都加；0 = 不加。按原文哈希决定，同一句结果固定。");
-                changed |= Slider(listing, "颜文字最短字数", ref Settings.KaomojiMinChars, 4f, 40f, 0.7f,
-                    "全文可见字符数达到这个长度才会追加颜文字。");
-                changed |= Checkbox(listing, "按语境挑颜文字", ref Settings.KaomojiContextual,
-                    "战斗、难过、食物、动物、恋爱、社交、工作各有专属池，其余用可爱池。");
+                changed |= Slider(listing, MeowifyText.L("触发概率 %"), ref Settings.KaomojiChance, 0f, 100f, 0.7f,
+                    MeowifyText.L("100 = 每句都加；0 = 不加。按原文哈希决定，同一句结果固定。"));
+                changed |= Slider(listing, MeowifyText.L("颜文字最短字数"), ref Settings.KaomojiMinChars, 4f, 40f, 0.7f,
+                    MeowifyText.L("全文可见字符数达到这个长度才会追加颜文字。"));
+                changed |= Checkbox(listing, MeowifyText.L("按语境挑颜文字"), ref Settings.KaomojiContextual,
+                    MeowifyText.L("战斗、难过、食物、动物、恋爱、社交、工作各有专属池，其余用可爱池。"));
                 if (Settings.KaomojiContextual)
                 {
-                    listing.Label("内置语境池：战斗 / 难过 / 食物 / 动物 / 恋爱 / 社交 / 工作 / 可爱。");
+                    listing.Label(MeowifyText.L("内置语境池：战斗 / 难过 / 食物 / 动物 / 恋爱 / 社交 / 工作 / 可爱。"));
                 }
-                changed |= Entry(listing, "额外颜文字（每行一个，会加进候选池）：",
+                changed |= Entry(listing, MeowifyText.L("额外颜文字（每行一个，会加进候选池）："),
                     ref Settings.KaomojiListRaw, EntryLines(Settings.KaomojiListRaw, 3, 8));
-                listing.Label("内置池来自社区颜文字合集（kaomoji-collection，MIT）；这里填的会额外加进去。");
+                listing.Label(MeowifyText.L("内置池来自社区颜文字合集（kaomoji-collection，MIT）；这里填的会额外加进去。"));
             }
 
             changedRef |= changed;
@@ -316,24 +332,24 @@ namespace Meowify
         private void DrawScopeTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "适用范围（关掉哪一层，哪一层就保持原样）");
-            changed |= Checkbox(listing, "界面文本（按钮 / 提示 / 事件弹窗）", ref Settings.ChannelKeyed,
-                "语言包 Keyed 文本。关掉后按钮、提示、菜单保持原语言。");
-            changed |= Checkbox(listing, "定义注入文本（物品 / 技能 / 特性描述）", ref Settings.ChannelDefInjected,
-                "DefInjected 文本。关掉后物品名、描述、特性说明不会被喵化。");
-            changed |= Checkbox(listing, "语法生成句子（事件 / 社交 / 战斗日志）", ref Settings.ChannelGrammar,
-                "GrammarResolver 生成的句子。关掉后事件、社交、战斗日志保持原样。");
-            changed |= Checkbox(listing, "定义字段兜底（未翻译的 def 文本）", ref Settings.ChannelDefSweep,
-                "直接改 def 的 label/description 与背景故事。关掉后未翻译或代码生成的文本不会喵化。");
-            changed |= Checkbox(listing, "给名字也加喵（小人 / 动物 / 武器）", ref Settings.IncludeNames,
-                "默认关：名字由语法生成，加了喵会很怪。开：连名字一起喵。");
+            Section(listing, MeowifyText.L("适用范围（关掉哪一层，哪一层就保持原样）"));
+            changed |= Checkbox(listing, MeowifyText.L("界面文本（按钮 / 提示 / 事件弹窗）"), ref Settings.ChannelKeyed,
+                MeowifyText.L("语言包 Keyed 文本。关掉后按钮、提示、菜单保持原语言。"));
+            changed |= Checkbox(listing, MeowifyText.L("定义注入文本（物品 / 技能 / 特性描述）"), ref Settings.ChannelDefInjected,
+                MeowifyText.L("DefInjected 文本。关掉后物品名、描述、特性说明不会被喵化。"));
+            changed |= Checkbox(listing, MeowifyText.L("语法生成句子（事件 / 社交 / 战斗日志）"), ref Settings.ChannelGrammar,
+                MeowifyText.L("GrammarResolver 生成的句子。关掉后事件、社交、战斗日志保持原样。"));
+            changed |= Checkbox(listing, MeowifyText.L("定义字段兜底（未翻译的 def 文本）"), ref Settings.ChannelDefSweep,
+                MeowifyText.L("直接改 def 的 label/description 与背景故事。关掉后未翻译或代码生成的文本不会喵化。"));
+            changed |= Checkbox(listing, MeowifyText.L("给名字也加喵（小人 / 动物 / 武器）"), ref Settings.IncludeNames,
+                MeowifyText.L("默认关：名字由语法生成，加了喵会很怪。开：连名字一起喵。"));
             listing.Gap(6f);
 
-            Section(listing, "关键词过滤");
-            changed |= Entry(listing, "只喵这些词（每行一个，留空 = 全部）：", ref Settings.IncludeKeywordsRaw, 3);
-            listing.Label("白名单：填了就只处理包含这些词的文本（例如只填「殖民者」）。");
-            changed |= Entry(listing, "不要喵这些词（每行一个）：", ref Settings.ExcludeKeywordsRaw, 3);
-            listing.Label("黑名单：包含这些词的文本整段原样返回，优先级高于白名单。");
+            Section(listing, MeowifyText.L("关键词过滤"));
+            changed |= Entry(listing, MeowifyText.L("只喵这些词（每行一个，留空 = 全部）："), ref Settings.IncludeKeywordsRaw, 3);
+            listing.Label(MeowifyText.L("白名单：填了就只处理包含这些词的文本（例如只填「殖民者」）。"));
+            changed |= Entry(listing, MeowifyText.L("不要喵这些词（每行一个）："), ref Settings.ExcludeKeywordsRaw, 3);
+            listing.Label(MeowifyText.L("黑名单：包含这些词的文本整段原样返回，优先级高于白名单。"));
 
             changedRef |= changed;
         }
@@ -342,15 +358,15 @@ namespace Meowify
         private void DrawAdvancedTab(Listing_Standard listing, ref bool changedRef)
         {
             bool changed = false;
-            Section(listing, "保护词与排除片段");
-            changed |= Entry(listing, "额外保护词（每行一个）：", ref Settings.ExtraProtectedWordsRaw, 3);
-            listing.Label("含有「我 / 你 / 他」但不是人称代词的词，替换前会整体跳过。" +
-                          "内置：迷你、自我、忘我、无我、敌我、你我、其他、其它、吉他…");
+            Section(listing, MeowifyText.L("保护词与排除片段"));
+            changed |= Entry(listing, MeowifyText.L("额外保护词（每行一个）："), ref Settings.ExtraProtectedWordsRaw, 3);
+            listing.Label(MeowifyText.L("含有「我 / 你 / 他」但不是人称代词的词，替换前会整体跳过。") +
+                          MeowifyText.L("内置：迷你、自我、忘我、无我、敌我、你我、其他、其它、吉他…"));
             listing.Gap(4f);
-            changed |= Entry(listing, "排除片段（每行一个，命中就整段不喵化）：", ref Settings.ExcludedPhrasesRaw, 3);
-            listing.Label("给个别模组的特殊文本留后门：文本里只要出现这些片段，就原样返回，不加喵也不替换人称。");
+            changed |= Entry(listing, MeowifyText.L("排除片段（每行一个，命中就整段不喵化）："), ref Settings.ExcludedPhrasesRaw, 3);
+            listing.Label(MeowifyText.L("给个别模组的特殊文本留后门：文本里只要出现这些片段，就原样返回，不加喵也不替换人称。"));
             listing.Gap(8f);
-            listing.Label("喵化世界 Meowify v" + Version + " · 运行时改文本，不修改任何翻译文件。");
+            listing.Label(MeowifyText.L("喵化世界 Meowify v") + Version + MeowifyText.L(" · 运行时改文本，不修改任何翻译文件。"));
 
             changedRef |= changed;
         }
@@ -450,6 +466,7 @@ namespace Meowify
                 case Preset.Light:
                     Settings.SentenceEnd = true;
                     Settings.EndWordsRaw = MeowSettings.DefaultEndWords;
+                    Settings.EnglishEndWordsRaw = MeowSettings.DefaultEnglishEndWords;
                     Settings.MinChars = 2;
                     Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = false;
@@ -474,6 +491,7 @@ namespace Meowify
                 case Preset.Fever:
                     Settings.SentenceEnd = true;
                     Settings.EndWordsRaw = "喵\n喵呜\n喵～";
+                    Settings.EnglishEndWordsRaw = "meow\nmrrp\nnya~";
                     Settings.MinChars = 1;
                     Settings.SentenceEndChance = 100;
                     Settings.PronounSwap = true;

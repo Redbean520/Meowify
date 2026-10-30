@@ -1,7 +1,7 @@
 # Steam 工坊发布文案（按 `rimworld-modding/references/09-workshop.md` 重写，可直接复制）
 
 > 当前发布：1.3.0（已打包，`release\Meowify\Meowify-1.3.0.zip`，含 `About/PublishedFileId.txt`）｜ 目标：RimWorld 1.7 ｜ 依赖：Harmony（brrainz.harmony）
-> 更新日期：2026-10-30
+> 更新日期：2026-10-30（测试版新增英文界面支持，英文描述见 `docs/workshop-en.md`）
 >
 > 格式说明：工坊描述只认 **Steam BBCode**，不认 Markdown / HTML。本文正文已按技能要求写：不用 `[list]` / `[*]` / `[img]` / `[quote]` / `[code]`，标题从 `[h2]` 起，行首 `- ` 当子弹点，标签全部成对（`[hr]` 单独用），长更新日志进 `[spoiler]`。
 
@@ -33,6 +33,7 @@
 
 [h2]功能[/h2]
 - 句尾加喵：新建殖民地 → 新建殖民地喵
+- 英文界面：句尾词自动换成 meow / nya / mrrp，设置界面也是英文（中文界面行为不变）
 - 人称替换：我 → 本喵，你 → 主人（可关，也能改成任意词）
 - 长句末尾随机追加猫咪颜文字：（=^ω^=）（≧▽≦）（｡･ω･｡）……
 - 覆盖范围：主菜单、按钮、提示、物品 / 地块 / 植物信息卡、事件日志、小人背景故事，以及语法规则生成的句子
