@@ -1,7 +1,7 @@
 # Steam Workshop description (English)
 
 > Companion to `workshop.md`. Paste the BBCode below into the Workshop description (Steam localizes per-language pages; this file is the reference text for an English listing/announcement).
-> Version: test build with English UI support (not yet packaged) | RimWorld 1.7 | Requires Harmony.
+> Version: 1.3.0 build, English UI support included | RimWorld 1.7 | Requires Harmony.
 
 ## Title
 

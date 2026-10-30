@@ -108,13 +108,13 @@ Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
 - [x] 三处版本号同步为 1.3.0（About.xml / MeowifyMod.cs / csproj）
 - [x] 编译 0 警告 0 错误；核心逻辑单测 ALL PASS
 - [ ] 设置界面六标签页真机截图（替换 04 / 05；用户在 1.3 自测通过，截图待补）
-- [x] `tools\make-release.ps1` 打包：`release\Meowify\Meowify-1.3.0\` + `Meowify-1.3.0.zip`（904,750 B，6 文件）
+- [x] `tools\make-release.ps1` 打包：`release\Meowify\Meowify-1.3.0\` + `Meowify-1.3.0.zip`（909,655 B，6 文件；2026-10-31 重打包，含英文界面支持）
 - [x] 发布包内容已装进 `Mods\Meowify\`（真实文件夹，不是 junction）
 - [x] `About/PublishedFileId.txt`（3826020497）保留在 mod 根目录并打进发布包——上传时走「更新 / Update」，覆盖原工坊条目，不要新建
 - [ ] 更新已有工坊条目：填标题、摘要、描述（上面 ③ 整段粘贴），预览图用 About/Preview.png
 - [ ] 按 ⑤ 顺序上传图片，首图为 00-poster.jpg
 - [ ] 发布后在工坊页确认是原条目的新版本（作者页不应出现同名新条目）
-- [x] 打 tag：`git tag v1.3.0`（当前指向 5445d4a；仓库没有 remote，推送待做）
+- [x] 打 tag：`v1.3.0` → 提交 78ae5c0，已推送到 https://github.com/Redbean520/Meowify（main 与 tag 同一提交）
 
 ## ⑧ 与 About.xml 的一致性说明
 
