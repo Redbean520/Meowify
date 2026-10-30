@@ -111,3 +111,4 @@ Mod ｜ RimWorld 1.7 ｜ Harmony ｜ 中文 ｜ 文本/界面 ｜ 趣味
 - [ ] 按 ⑤ 顺序上传图片，首图为 00-poster.jpg
 - [ ] 工坊生成 PublishedFileId 后写入 `About/PublishedFileId.txt`（该文件已被 .gitignore 忽略），再提交一次
 - [x] 打 tag：`git tag v1.3.0`（推送待做，仓库目前没有 remote）
+- [x] `About/PublishedFileId.txt` 已保留在 mod 根目录并打进 1.3.0 发布包——上传时走「更新 / Update」，覆盖原工坊条目，不要新建条目

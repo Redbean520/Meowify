@@ -1,5 +1,6 @@
 ﻿<#
-  打发布版：白名单只含游戏会读的文件，结构上不含 Source，也不含工坊上传 ID。
+  打发布版：白名单只含游戏会读的文件，结构上不含 Source。
+  About\PublishedFileId.txt 若存在会一并带上——游戏靠它更新已有工坊条目，删掉会新建重复条目。
   产出（默认）：
     <工作区>\release\<ModName>\<ModName>-<版本>\      发布版 mod 文件（可直接挂游戏/上传工坊）
     <工作区>\release\<ModName>\<ModName>-<版本>.zip   压缩包（挂 GitHub Release）
@@ -56,8 +57,8 @@ foreach ($item in $include) {
 }
 Get-ChildItem -LiteralPath $dest -Recurse -Directory -Force | Where-Object { $_.Name -in @('bin', 'obj') } | Remove-Item -Recurse -Force
 Get-ChildItem -LiteralPath $dest -Recurse -File -Force | Where-Object { $_.Extension -in @('.pdb', '.user') } | Remove-Item -Force
-# 工坊上传 ID 只留本地，绝不进发布包
-Remove-Item -LiteralPath (Join-Path $dest 'About\PublishedFileId.txt') -Force -ErrorAction SilentlyContinue
+# 工坊上传 ID：存在就带进发布包。游戏据此更新已有工坊条目；不带会新建重复条目。
+$publishedId = Join-Path $dest 'About\PublishedFileId.txt'
 
 $zip = $dest + '.zip'
 if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
@@ -68,4 +69,4 @@ Write-Host ("发布版目录：{0}" -f $dest)
 Write-Host ("包内文件：{0} 个 / {1:N2} MB" -f $files.Count, (($files | Measure-Object Length -Sum).Sum / 1MB))
 Write-Host ("压缩包：{0} ({1:N0} B)" -f $zip, (Get-Item -LiteralPath $zip).Length)
 Write-Host ("检查 Source 是否存在：{0}（应为 False）" -f (Test-Path -LiteralPath (Join-Path $dest 'Source')))
-Write-Host ("检查 PublishedFileId.txt：{0}（应为 False）" -f (Test-Path -LiteralPath (Join-Path $dest 'About\PublishedFileId.txt')))
+Write-Host ("PublishedFileId.txt：{0}（True = 更新已有工坊条目；False = 首次发布）" -f (Test-Path -LiteralPath $publishedId))

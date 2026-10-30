@@ -181,7 +181,8 @@ v1.3 起设置界面分成六个标签页，顶部固定标题与版本，底部
 - 工坊发布文案：`docs/workshop.md`（v1.3.0 可直接复制的标题 / 摘要 / BBCode 正文 / 标签 / 截图顺序 / 发布清单）
 - 预览图：`About/Preview.png`（1280×720 插画封面，工坊首图；`docs/screenshots/00-poster.jpg` 是它的 1920×1080 版本）
 - 截图：`docs/screenshots/`（00 主视觉 + 06/07/08 特性图 + 09 实机效果 + 01–05 真机截图）
-- 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）
+- 上传流程：按「版本号与发版」三处同步 → `powershell -NoProfile -ExecutionPolicy Bypass -File tools\make-release.ps1` → 上传 zip → 工坊生成 PublishedFileId 后写进 `About/PublishedFileId.txt`（已被 .gitignore 忽略）。
+- ⚠️ **更新已有工坊条目时不要丢 `About/PublishedFileId.txt`**：`make-release.ps1` 现在会把它一并带进发布包，游戏靠它更新原条目；缺了会被当成新 mod，新建第二个工坊条目（订阅、评论、合集分家）。首次发布时该文件不存在，上传成功后由游戏写入，之后一直保留在 mod 根目录。
 
 ## 参考 / 相关工作
 
