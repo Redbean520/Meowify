@@ -16,11 +16,32 @@ namespace Meowify
         /// <summary>人称替换：我→本喵、你→主人（我们/你们 一并处理）。</summary>
         public bool PronounSwap = true;
 
-        /// <summary>第一人称自称；留空表示不替换「我」。</summary>
+        /// <summary>第一人称自称（我）；留空表示不替换「我」。</summary>
         public string SelfPronoun = "本喵";
 
-        /// <summary>第二人称称呼；留空表示不替换「你」。</summary>
+        /// <summary>第一人称复数（我们）；留空 = 自动用「自称 + 们」。</summary>
+        public string SelfPluralPronoun = "";
+
+        /// <summary>第二人称称呼（你）；留空表示不替换「你」。</summary>
         public string OtherPronoun = "主人";
+
+        /// <summary>第二人称复数（你们）；留空 = 自动用「称呼 + 们」。</summary>
+        public string OtherPluralPronoun = "";
+
+        /// <summary>第三人称「他 / 他们」；留空表示不替换。</summary>
+        public string ThirdPronounHe = "";
+        public string ThirdPronounHePlural = "";
+
+        /// <summary>第三人称「她 / 她们」；留空表示不替换。</summary>
+        public string ThirdPronounShe = "";
+        public string ThirdPronounShePlural = "";
+
+        /// <summary>第三人称「它 / 它们」；留空表示不替换。</summary>
+        public string ThirdPronounIt = "";
+        public string ThirdPronounItPlural = "";
+
+        /// <summary>自定义人称替换：每项形如「原词=替换词」，会与上面的内置项一起生效。</summary>
+        public string[] CustomPronouns = new string[0];
 
         /// <summary>少于这个可见字数的文本不加句尾词（避免把按钮、图标说明撑破）。</summary>
         public int MinChars = 2;
@@ -40,20 +61,8 @@ namespace Meowify
         /// <summary>追加颜文字的概率（0-100）。</summary>
         public int KaomojiChance = 100;
 
-        /// <summary>颜文字候选列表（自定义，始终参与抽取）。</summary>
-        public string[] KaomojiList =
-        {
-            "（=^ω^=）",
-            "（≧▽≦）",
-            "（｡･ω･｡）",
-            "（＾ω＾）",
-            "（´▽`）",
-            "（＝ω＝）",
-            "（ฅ´ω`ฅ）",
-            "（´｡• ᵕ •｡`）",
-            "（*´▽`*）",
-            "（＾・ω・＾）"
-        };
+        /// <summary>额外颜文字列表（自定义，始终参与抽取；默认空，内置社区颜文字池已足够）。</summary>
+        public string[] KaomojiList = new string[0];
 
         /// <summary>用户额外添加的保护词（含「我/你」但不是人称代词，替换时整体跳过）。</summary>
         public string[] ExtraProtectedWords = new string[0];
@@ -127,7 +136,8 @@ namespace Meowify
         /// </summary>
         private static readonly string[] BuiltinProtectedWords =
         {
-            "迷你", "自我", "忘我", "无我", "敌我", "你我", "你死我活", "你争我夺"
+            "迷你", "自我", "忘我", "无我", "敌我", "你我", "你死我活", "你争我夺",
+            "其他", "其它", "吉他", "他乡", "他人"
         };
 
         private const char MaskStart = '\uE000';
@@ -293,22 +303,83 @@ namespace Meowify
                 rules.CollapseRepeated = options.CollapseRepeated;
                 rules.CollapseSuffix = options.CollapseSuffix == null ? string.Empty : options.CollapseSuffix;
 
-                string self = options.SelfPronoun == null ? string.Empty : options.SelfPronoun.Trim();
-                string other = options.OtherPronoun == null ? string.Empty : options.OtherPronoun.Trim();
-                List<string[]> pairs = new List<string[]>(4);
-                if (self.Length > 0)
+                List<string[]> pairs = new List<string[]>(20);
+
+                string self = Trim(options.SelfPronoun);
+                string other = Trim(options.OtherPronoun);
+                string he = Trim(options.ThirdPronounHe);
+                string she = Trim(options.ThirdPronounShe);
+                string it = Trim(options.ThirdPronounIt);
+
+                AddPronoun(pairs, "我们", Plural(options.SelfPluralPronoun, self));
+                AddPronoun(pairs, "我", self);
+                AddPronoun(pairs, "你们", Plural(options.OtherPluralPronoun, other));
+                AddPronoun(pairs, "你", other);
+                AddPronoun(pairs, "他们", Plural(options.ThirdPronounHePlural, he));
+                AddPronoun(pairs, "他", he);
+                AddPronoun(pairs, "她们", Plural(options.ThirdPronounShePlural, she));
+                AddPronoun(pairs, "她", she);
+                AddPronoun(pairs, "它们", Plural(options.ThirdPronounItPlural, it));
+                AddPronoun(pairs, "它", it);
+
+                string[] custom = options.CustomPronouns;
+                if (custom != null)
                 {
-                    pairs.Add(new[] { "我们", self + "们" });
-                    pairs.Add(new[] { "我", self });
+                    for (int i = 0; i < custom.Length; i++)
+                    {
+                        string line = Trim(custom[i]);
+                        int split = line.IndexOf('=');
+                        if (split <= 0 || split >= line.Length - 1)
+                        {
+                            continue;
+                        }
+                        AddPronoun(pairs, Trim(line.Substring(0, split)), Trim(line.Substring(split + 1)));
+                    }
                 }
-                if (other.Length > 0)
-                {
-                    pairs.Add(new[] { "你们", other + "们" });
-                    pairs.Add(new[] { "你", other });
-                }
+
+                // 长词优先，避免「我们」里的「我」先被换掉
+                pairs.Sort(ComparePronounPairs);
                 rules.PronounPairs = pairs.ToArray();
                 return rules;
             }
+
+            private static int ComparePronounPairs(string[] a, string[] b)
+            {
+                int byLength = b[0].Length - a[0].Length;
+                return byLength != 0 ? byLength : string.CompareOrdinal(a[0], b[0]);
+            }
+        }
+
+        private static string Trim(string value)
+        {
+            return value == null ? string.Empty : value.Trim();
+        }
+
+        /// <summary>复数形式：给了就用手填的，否则自动「单数 + 们」。</summary>
+        private static string Plural(string configuredPlural, string singular)
+        {
+            string plural = Trim(configuredPlural);
+            if (plural.Length > 0)
+            {
+                return plural;
+            }
+            return singular.Length > 0 ? singular + "们" : string.Empty;
+        }
+
+        private static void AddPronoun(List<string[]> pairs, string from, string to)
+        {
+            if (from.Length == 0 || to.Length == 0 || string.Equals(from, to, StringComparison.Ordinal))
+            {
+                return;
+            }
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                if (string.Equals(pairs[i][0], from, StringComparison.Ordinal))
+                {
+                    return;
+                }
+            }
+            pairs.Add(new[] { from, to });
         }
 
         private static string MeowifyLine(string line, Rules rules)
@@ -375,13 +446,88 @@ namespace Meowify
             }
             string run = line.Substring(start, end - start);
             run = MaskProtected(run, rules.ProtectedWords);
-            string[][] pairs = rules.PronounPairs;
-            for (int p = 0; p < pairs.Length; p++)
-            {
-                run = run.Replace(pairs[p][0], pairs[p][1]);
-            }
+            run = ReplacePronounsOnce(run, rules.PronounPairs);
             run = UnmaskProtected(run, rules.ProtectedWords);
             sb.Append(run);
+        }
+
+        /// <summary>
+        /// 单次从左到右扫描替换人称：替换出来的词不会被再次匹配（保证幂等），
+        /// 同一位置按「长词优先」选最长的原词，遮罩段原样透传。
+        /// </summary>
+        private static string ReplacePronounsOnce(string run, string[][] pairs)
+        {
+            if (pairs.Length == 0)
+            {
+                return run;
+            }
+            StringBuilder sb = new StringBuilder(run.Length + 8);
+            int len = run.Length;
+            int i = 0;
+            while (i < len)
+            {
+                char c = run[i];
+
+                // 保护词遮罩段整体透传
+                if (c == MaskStart)
+                {
+                    int maskEnd = run.IndexOf(MaskEnd, i + 1);
+                    if (maskEnd >= 0)
+                    {
+                        sb.Append(run, i, maskEnd - i + 1);
+                        i = maskEnd + 1;
+                        continue;
+                    }
+                }
+
+                // 先看是否已经是替换结果（幂等：避免「他」→「他喵」再变「他喵喵」）
+                bool emitted = false;
+                for (int p = 0; p < pairs.Length; p++)
+                {
+                    string to = pairs[p][1];
+                    if (to.Length > 0 && MatchesAt(run, i, to))
+                    {
+                        sb.Append(to);
+                        i += to.Length;
+                        emitted = true;
+                        break;
+                    }
+                }
+                if (emitted)
+                {
+                    continue;
+                }
+
+                // 再匹配原词（pairs 已按原词长度降序，长词优先）
+                for (int p = 0; p < pairs.Length; p++)
+                {
+                    string from = pairs[p][0];
+                    if (from.Length > 0 && MatchesAt(run, i, from))
+                    {
+                        sb.Append(pairs[p][1]);
+                        i += from.Length;
+                        emitted = true;
+                        break;
+                    }
+                }
+                if (emitted)
+                {
+                    continue;
+                }
+
+                sb.Append(c);
+                i++;
+            }
+            return sb.ToString();
+        }
+
+        private static bool MatchesAt(string text, int index, string token)
+        {
+            if (token.Length == 0 || index + token.Length > text.Length)
+            {
+                return false;
+            }
+            return string.CompareOrdinal(text, index, token, 0, token.Length) == 0;
         }
 
         private static string MaskProtected(string run, string[] protectedWords)
@@ -982,7 +1128,7 @@ namespace Meowify
         /// <summary>组装这次可用的颜文字候选：语境池 + 自定义列表。</summary>
         private static string[] BuildKaomojiCandidates(string text, Rules rules)
         {
-            List<string> list = new List<string>(16);
+            List<string> list = new List<string>(24);
             if (rules.KaomojiContextual)
             {
                 string[] pool = KaomojiPools.ForText(text);
@@ -1006,41 +1152,76 @@ namespace Meowify
                     }
                 }
             }
+            // 关掉语境池又没填自定义时，退回内置可爱池，别让颜文字功能变成摆设
+            if (list.Count == 0)
+            {
+                string[] pool = KaomojiPools.Cute;
+                for (int i = 0; i < pool.Length; i++)
+                {
+                    list.Add(pool[i]);
+                }
+            }
             return list.ToArray();
         }
 
-        /// <summary>内置颜文字池：按文本里的关键词挑一套「应景」的。</summary>
-        private static class KaomojiPools
+        /// <summary>内置颜文字池：来源为 kaomoji-collection（MIT）等社区合集，按语境挑一套「应景」的。</summary>
+        internal static class KaomojiPools
         {
             public static readonly string[] Cute =
             {
-                "（=^ω^=）", "（≧▽≦）", "（｡･ω･｡）", "（＾ω＾）", "（´▽`）",
-                "（＝ω＝）", "（ฅ´ω`ฅ）", "（＾・ω・＾）"
+                "（=^ω^=）", "（≧▽≦）", "（｡･ω･｡）", "（＾ω＾）",
+                "（´▽`）", "（＝ω＝）", "（*´ω`*）", "（◜◡◝）",
+                "（╹◡╹）", "（*^ω^*）", "✨（❁´◡`❁）✨", "ヾ（*・ω・）ﾉ",
+                "◝（*'▿'*）◜", "o＜´・ω・`＞o", "＼（＾▽＾）／", "（ ˘ω˘ ）"
             };
 
             public static readonly string[] Combat =
             {
-                "（｀・ω・´）ゞ", "（￣^￣）ゞ", "（；OдO）", "（°Д°）", "（￣ヘ￣）", "（≧∇≦）b"
+                "（｀Д´）/", "ヽ（#ﾟДﾟ）ﾉ┌┛", "（╬◣д◢）", "щ（ﾟДﾟщ）",
+                "（#ﾟДﾟ）", "（｀・ω・´）", "o（｀ω´*）o", "ヽ（｀Д´#）ﾉ",
+                "（ﾉ｀Д）ﾉ", "Σ（°Д°）", "（｀-ω-´）✧", "（∩^o^）⊃━♡"
             };
 
             public static readonly string[] Social =
             {
-                "（*´▽`*）", "（´｡• ᵕ •｡`）", "（*/ω＼*）", "（´,,•ω•,,）♡", "（＾▽＾）"
+                "（・ω・）ノ", "（＾▽＾）ノ", "ヽ（´▽｀）ノ", "（◕‿◕）ﾉ",
+                "（*´ω｀*）ﾉ", "⊂（・▽・⊂）", "ヾ（・ω・｀）ﾉ~~", "（´▽`）ノ",
+                "♪（´ε｀ ）", "（´ε｀ ）♡", "（*˘◡˘*）♡", "（´▽`）ノ~~"
             };
 
             public static readonly string[] Work =
             {
-                "（•̀ᴗ•́）و", "（｡•̀ᴗ-）✧", "（๑˃̵ᴗ˂̵）و", "（•̀ω•́）✧", "（￣▽￣）ゞ"
+                "（・ω・）b", "（ ^ω^ ）b", "（｀・ω・´）", "□_ヾ（◕‿◕）",
+                "□_ヾ（´ω`）", "ヽ（＾Д＾）ﾉ", "Σp[◎]ω・´）", "（/^▽^）/",
+                "（｀-ω-´）✧", "d（-_^）"
             };
 
             public static readonly string[] Food =
             {
-                "（๑´ڡ`๑）", "（っ˘ڡ˘ς）", "（ ˘▽˘）っ", "（๑>؂<๑）", "（￣﹃￣）"
+                "（◕‿◕）♡", "（⌒‿⌒）♡", "（*˘▾˘*）♡", "ヽ（♡‿♡）ﾉ",
+                "o（^▽^）o♡", "（ ˘ω˘ ）", "（・ω・）ノ", "（ ・`ω・´）",
+                "（￣～￣）", "（*´ω`*）♡"
             };
 
             public static readonly string[] Animal =
             {
-                "（=^ω^=）", "（ฅ^•ﻌ•^ฅ）", "（=ↀωↀ=）", "（^・ω・^）", "（๑•́ ₃ •̀๑）"
+                "（'ω'）", "（^>ω<^）", "∩（^ΦωΦ^）∩", "（∪^ω^）",
+                "（υ◉ω◉υ）", "U[^ω^]U", "（ΘωΘ）", "（Θ◡Θ）",
+                "（Θ▿Θ）", "ε（ c ´ω`）", "（V）（´・ω・`）（V）", "（V）（♡ω♡）（V）",
+                "（⌒ω⌒）", "（ ˘ω˘ ）"
+            };
+
+            public static readonly string[] Sad =
+            {
+                "（´-ω-`）", "（´・ω・｀）", "（´._.`）♡", "（ ˘ω˘ ; ）",
+                "ヾ（・ω・`; ）ノ", "╮（´-ω-`）╭", "ﾟ（ﾟ`ω´ ﾟ）ﾟ", "（´◦ω◦｀）"
+            };
+
+            public static readonly string[] Love =
+            {
+                "（♥ε♥）", "（♥ω♥*）", "（*´ω｀*）♡", "♡（.◜ω◝.）♡",
+                "（*/ω＼*）", "（//▽//）", "（♡_♡）", "（♥‿♥）",
+                "（✿♥‿♥✿）", "（❁´`❁）♡", "（♥◡♥）", "（♥o♥）"
             };
 
             private static readonly string[] CombatKeys =
@@ -1049,16 +1230,27 @@ namespace Meowify
                 "敌人", "开火", "伤口", "疼痛", "昏迷", "失血", "战争", "突袭", "格挡", "中弹"
             };
 
+            private static readonly string[] SadKeys =
+            {
+                "哭", "悲伤", "难过", "崩溃", "绝望", "沮丧", "哀悼", "痛苦", "不幸", "生病",
+                "死亡", "逝去", "发疯", "精神崩溃"
+            };
+
             private static readonly string[] SocialKeys =
             {
                 "社交", "交谈", "聊天", "朋友", "关系", "恋人", "结婚", "婚姻", "争吵", "侮辱",
-                "调情", "派对", "结识", "拜访", "求婚", "好感"
+                "调情", "派对", "结识", "拜访", "求婚", "好感", "招募", "访客"
+            };
+
+            private static readonly string[] LoveKeys =
+            {
+                "爱", "恋爱", "恋人", "亲密", "亲吻", "拥抱", "结婚", "伴侣", "心动", "甜"
             };
 
             private static readonly string[] WorkKeys =
             {
                 "建造", "采矿", "砍伐", "种植", "收获", "烹饪", "制作", "研究", "工作", "搬运",
-                "修理", "缝制", "挖掘", "打扫", "建造中"
+                "修理", "缝制", "挖掘", "打扫", "建造中", "蓝图"
             };
 
             private static readonly string[] FoodKeys =
@@ -1068,16 +1260,16 @@ namespace Meowify
 
             private static readonly string[] AnimalKeys =
             {
-                "动物", "猫", "狗", "驯服", "训练", "宠物", "鸟", "牛", "羊", "兔", "兽"
+                "动物", "猫", "狗", "驯服", "训练", "宠物", "鸟", "牛", "羊", "兔", "兽", "绮罗", "喵"
             };
 
-            /// <summary>所有内置池合并（幂等检测用）。</summary>
+            /// <summary>所有内置池合并（幂等检测与调试用）。</summary>
             public static readonly string[] All = BuildAll();
 
             private static string[] BuildAll()
             {
-                List<string> list = new List<string>(64);
-                string[][] pools = { Cute, Combat, Social, Work, Food, Animal };
+                List<string> list = new List<string>(160);
+                string[][] pools = { Cute, Combat, Social, Work, Food, Animal, Sad, Love };
                 for (int p = 0; p < pools.Length; p++)
                 {
                     for (int i = 0; i < pools[p].Length; i++)
@@ -1101,9 +1293,9 @@ namespace Meowify
                 {
                     return Combat;
                 }
-                if (ContainsAny(text, SocialKeys))
+                if (ContainsAny(text, SadKeys))
                 {
-                    return Social;
+                    return Sad;
                 }
                 if (ContainsAny(text, FoodKeys))
                 {
@@ -1112,6 +1304,14 @@ namespace Meowify
                 if (ContainsAny(text, AnimalKeys))
                 {
                     return Animal;
+                }
+                if (ContainsAny(text, LoveKeys))
+                {
+                    return Love;
+                }
+                if (ContainsAny(text, SocialKeys))
+                {
+                    return Social;
                 }
                 if (ContainsAny(text, WorkKeys))
                 {

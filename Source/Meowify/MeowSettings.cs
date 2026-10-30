@@ -13,8 +13,7 @@ namespace Meowify
         public const string DefaultOtherPronoun = "主人";
         public const string DefaultEndWords = "喵";
         public const string DefaultCollapseSuffix = "~";
-        public const string DefaultKaomojiList =
-            "（=^ω^=）\n（≧▽≦）\n（｡･ω･｡）\n（＾ω＾）\n（´▽`）\n（＝ω＝）\n（ฅ´ω`ฅ）\n（´｡• ᵕ •｡`）\n（*´▽`*）\n（＾・ω・＾）";
+        public const string DefaultKaomojiList = "";
 
         // 句尾
         public bool SentenceEnd = true;
@@ -25,7 +24,16 @@ namespace Meowify
         // 人称
         public bool PronounSwap = true;
         public string SelfPronoun = DefaultSelfPronoun;
+        public string SelfPluralPronoun = string.Empty;
         public string OtherPronoun = DefaultOtherPronoun;
+        public string OtherPluralPronoun = string.Empty;
+        public string ThirdPronounHe = string.Empty;
+        public string ThirdPronounHePlural = string.Empty;
+        public string ThirdPronounShe = string.Empty;
+        public string ThirdPronounShePlural = string.Empty;
+        public string ThirdPronounIt = string.Empty;
+        public string ThirdPronounItPlural = string.Empty;
+        public string CustomPronounsRaw = string.Empty;
 
         // 颜文字
         public bool Kaomoji = true;
@@ -63,7 +71,16 @@ namespace Meowify
             Scribe_Values.Look(ref SentenceEndChance, "sentenceEndChance", 100);
             Scribe_Values.Look(ref PronounSwap, "pronounSwap", true);
             Scribe_Values.Look(ref SelfPronoun, "selfPronoun", DefaultSelfPronoun);
+            Scribe_Values.Look(ref SelfPluralPronoun, "selfPluralPronoun", string.Empty);
             Scribe_Values.Look(ref OtherPronoun, "otherPronoun", DefaultOtherPronoun);
+            Scribe_Values.Look(ref OtherPluralPronoun, "otherPluralPronoun", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounHe, "thirdPronounHe", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounHePlural, "thirdPronounHePlural", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounShe, "thirdPronounShe", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounShePlural, "thirdPronounShePlural", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounIt, "thirdPronounIt", string.Empty);
+            Scribe_Values.Look(ref ThirdPronounItPlural, "thirdPronounItPlural", string.Empty);
+            Scribe_Values.Look(ref CustomPronounsRaw, "customPronouns", string.Empty);
             Scribe_Values.Look(ref Kaomoji, "kaomoji", true);
             Scribe_Values.Look(ref KaomojiMinChars, "kaomojiMinChars", 10);
             Scribe_Values.Look(ref KaomojiChance, "kaomojiChance", 100);
@@ -90,7 +107,16 @@ namespace Meowify
             SentenceEndChance = 100;
             PronounSwap = true;
             SelfPronoun = DefaultSelfPronoun;
+            SelfPluralPronoun = string.Empty;
             OtherPronoun = DefaultOtherPronoun;
+            OtherPluralPronoun = string.Empty;
+            ThirdPronounHe = string.Empty;
+            ThirdPronounHePlural = string.Empty;
+            ThirdPronounShe = string.Empty;
+            ThirdPronounShePlural = string.Empty;
+            ThirdPronounIt = string.Empty;
+            ThirdPronounItPlural = string.Empty;
+            CustomPronounsRaw = string.Empty;
             Kaomoji = true;
             KaomojiMinChars = 10;
             KaomojiChance = 100;
@@ -117,8 +143,17 @@ namespace Meowify
             options.MinChars = MinChars < 1 ? 1 : MinChars;
             options.SentenceEndChance = Clamp(SentenceEndChance, 0, 100);
             options.PronounSwap = PronounSwap;
-            options.SelfPronoun = SelfPronoun == null ? string.Empty : SelfPronoun.Trim();
-            options.OtherPronoun = OtherPronoun == null ? string.Empty : OtherPronoun.Trim();
+            options.SelfPronoun = Trim(SelfPronoun);
+            options.SelfPluralPronoun = Trim(SelfPluralPronoun);
+            options.OtherPronoun = Trim(OtherPronoun);
+            options.OtherPluralPronoun = Trim(OtherPluralPronoun);
+            options.ThirdPronounHe = Trim(ThirdPronounHe);
+            options.ThirdPronounHePlural = Trim(ThirdPronounHePlural);
+            options.ThirdPronounShe = Trim(ThirdPronounShe);
+            options.ThirdPronounShePlural = Trim(ThirdPronounShePlural);
+            options.ThirdPronounIt = Trim(ThirdPronounIt);
+            options.ThirdPronounItPlural = Trim(ThirdPronounItPlural);
+            options.CustomPronouns = ParseList(CustomPronounsRaw);
             options.Kaomoji = Kaomoji;
             options.KaomojiMinChars = KaomojiMinChars < 1 ? 1 : KaomojiMinChars;
             options.KaomojiChance = Clamp(KaomojiChance, 0, 100);
@@ -136,6 +171,11 @@ namespace Meowify
             options.ExtraProtectedWords = ParseList(ExtraProtectedWordsRaw);
             options.ExcludedPhrases = ParseList(ExcludedPhrasesRaw);
             return options;
+        }
+
+        private static string Trim(string value)
+        {
+            return value == null ? string.Empty : value.Trim();
         }
 
         private static int Clamp(int value, int min, int max)

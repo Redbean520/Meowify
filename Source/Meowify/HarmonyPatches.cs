@@ -56,6 +56,7 @@ namespace Meowify
                 postfix: new HarmonyMethod(typeof(HarmonyPatches), "AfterImpliedDefs_Postfix"));
 
             Log.Message("[Meowify] Harmony patches installed: " + PatchedCount + "/4. 喵。");
+
         }
 
         private static int PatchedCount;
