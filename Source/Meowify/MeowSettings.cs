@@ -12,8 +12,9 @@ namespace Meowify
         public const string DefaultSelfPronoun = "本喵";
         public const string DefaultOtherPronoun = "主人";
         public const string DefaultEndWords = "喵";
+        public const string DefaultCollapseSuffix = "~";
         public const string DefaultKaomojiList =
-            "（=^ω^=）\n（≧▽≦）\n（｡･ω･｡）\n（＾ω＾）\n（´▽`）";
+            "（=^ω^=）\n（≧▽≦）\n（｡･ω･｡）\n（＾ω＾）\n（´▽`）\n（＝ω＝）\n（ฅ´ω`ฅ）\n（´｡• ᵕ •｡`）\n（*´▽`*）\n（＾・ω・＾）";
 
         // 句尾
         public bool SentenceEnd = true;
@@ -32,6 +33,24 @@ namespace Meowify
         public int KaomojiChance = 100;
         public string KaomojiListRaw = DefaultKaomojiList;
 
+        /// <summary>按语境挑颜文字。</summary>
+        public bool KaomojiContextual = true;
+
+        // 适用范围
+        public bool ChannelKeyed = true;
+        public bool ChannelDefInjected = true;
+        public bool ChannelGrammar = true;
+        public bool ChannelDefSweep = true;
+        public bool IncludeNames = false;
+
+        // 关键词过滤
+        public string IncludeKeywordsRaw = string.Empty;
+        public string ExcludeKeywordsRaw = string.Empty;
+
+        // 折叠重复句尾词
+        public bool CollapseRepeated = true;
+        public string CollapseSuffix = DefaultCollapseSuffix;
+
         // 高级
         public string ExtraProtectedWordsRaw = string.Empty;
         public string ExcludedPhrasesRaw = string.Empty;
@@ -49,6 +68,16 @@ namespace Meowify
             Scribe_Values.Look(ref KaomojiMinChars, "kaomojiMinChars", 10);
             Scribe_Values.Look(ref KaomojiChance, "kaomojiChance", 100);
             Scribe_Values.Look(ref KaomojiListRaw, "kaomojiList", DefaultKaomojiList);
+            Scribe_Values.Look(ref KaomojiContextual, "kaomojiContextual", true);
+            Scribe_Values.Look(ref ChannelKeyed, "channelKeyed", true);
+            Scribe_Values.Look(ref ChannelDefInjected, "channelDefInjected", true);
+            Scribe_Values.Look(ref ChannelGrammar, "channelGrammar", true);
+            Scribe_Values.Look(ref ChannelDefSweep, "channelDefSweep", true);
+            Scribe_Values.Look(ref IncludeNames, "includeNames", false);
+            Scribe_Values.Look(ref IncludeKeywordsRaw, "includeKeywords", string.Empty);
+            Scribe_Values.Look(ref ExcludeKeywordsRaw, "excludeKeywords", string.Empty);
+            Scribe_Values.Look(ref CollapseRepeated, "collapseRepeated", true);
+            Scribe_Values.Look(ref CollapseSuffix, "collapseSuffix", DefaultCollapseSuffix);
             Scribe_Values.Look(ref ExtraProtectedWordsRaw, "extraProtectedWords", string.Empty);
             Scribe_Values.Look(ref ExcludedPhrasesRaw, "excludedPhrases", string.Empty);
         }
@@ -66,6 +95,16 @@ namespace Meowify
             KaomojiMinChars = 10;
             KaomojiChance = 100;
             KaomojiListRaw = DefaultKaomojiList;
+            KaomojiContextual = true;
+            ChannelKeyed = true;
+            ChannelDefInjected = true;
+            ChannelGrammar = true;
+            ChannelDefSweep = true;
+            IncludeNames = false;
+            IncludeKeywordsRaw = string.Empty;
+            ExcludeKeywordsRaw = string.Empty;
+            CollapseRepeated = true;
+            CollapseSuffix = DefaultCollapseSuffix;
             ExtraProtectedWordsRaw = string.Empty;
             ExcludedPhrasesRaw = string.Empty;
         }
@@ -84,6 +123,16 @@ namespace Meowify
             options.KaomojiMinChars = KaomojiMinChars < 1 ? 1 : KaomojiMinChars;
             options.KaomojiChance = Clamp(KaomojiChance, 0, 100);
             options.KaomojiList = ParseList(KaomojiListRaw);
+            options.KaomojiContextual = KaomojiContextual;
+            options.ChannelKeyed = ChannelKeyed;
+            options.ChannelDefInjected = ChannelDefInjected;
+            options.ChannelGrammar = ChannelGrammar;
+            options.ChannelDefSweep = ChannelDefSweep;
+            options.IncludeNames = IncludeNames;
+            options.IncludeKeywords = ParseList(IncludeKeywordsRaw);
+            options.ExcludeKeywords = ParseList(ExcludeKeywordsRaw);
+            options.CollapseRepeated = CollapseRepeated;
+            options.CollapseSuffix = CollapseSuffix == null ? DefaultCollapseSuffix : CollapseSuffix.Trim();
             options.ExtraProtectedWords = ParseList(ExtraProtectedWordsRaw);
             options.ExcludedPhrases = ParseList(ExcludedPhrasesRaw);
             return options;

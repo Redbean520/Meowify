@@ -82,7 +82,7 @@ namespace Meowify
 
         internal static void TryGetTextFromKey_Postfix(bool __result, ref TaggedString translated)
         {
-            if (!__result)
+            if (!__result || !Meowifier.Options.ChannelKeyed)
             {
                 return;
             }
@@ -100,19 +100,40 @@ namespace Meowify
 
         internal static void InjectIntoDefs_Prefix(DefInjectionPackage __instance)
         {
+            if (!Meowifier.Options.ChannelDefInjected)
+            {
+                return;
+            }
             MeowInjections.MeowAll(__instance);
         }
 
-        internal static void Resolve_Postfix(ref string __result)
+        internal static void Resolve_Postfix(string rootKeyword, ref string __result)
         {
-            if (!string.IsNullOrEmpty(__result))
+            if (string.IsNullOrEmpty(__result) || !Meowifier.Options.ChannelGrammar)
             {
-                __result = Meowifier.Meowify(__result);
+                return;
             }
+            // 小人/动物/武器/派系/任务的名字是语法生成的，默认不喵（名字带喵会很怪）
+            if (!Meowifier.Options.IncludeNames && IsNameKeyword(rootKeyword))
+            {
+                return;
+            }
+            __result = Meowifier.Meowify(__result);
+        }
+
+        /// <summary>语法根关键字是不是在造名字（r_name / r_weapon_name / r_art_name / r_deityName…）。</summary>
+        internal static bool IsNameKeyword(string rootKeyword)
+        {
+            return !string.IsNullOrEmpty(rootKeyword) &&
+                   rootKeyword.IndexOf("name", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         internal static void AfterImpliedDefs_Postfix()
         {
+            if (!Meowifier.Options.ChannelDefSweep)
+            {
+                return;
+            }
             DefSweeper.SweepAll();
         }
     }

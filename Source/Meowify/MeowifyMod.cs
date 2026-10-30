@@ -59,7 +59,7 @@ namespace Meowify
         {
             bool changed = false;
 
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 24f, 1200f);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 24f, 1620f);
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
@@ -132,7 +132,9 @@ namespace Meowify
                     "100 = 每句都加；0 = 不加。按原文哈希决定，同一句结果固定。");
                 changed |= Slider(listing, "颜文字最短字数", ref Settings.KaomojiMinChars, 4f, 40f, 0.7f,
                     "全文可见字符数达到这个长度才会追加颜文字。");
-                changed |= Entry(listing, "颜文字候选（每行一个，留空就不加）：",
+                changed |= Checkbox(listing, "按语境挑颜文字", ref Settings.KaomojiContextual,
+                    "开：战斗/社交/食物/动物/工作各有专属颜文字池，内置可爱池兜底。关：只从下面的候选里挑。");
+                changed |= Entry(listing, "额外颜文字（每行一个，留空就用内置池）：",
                     ref Settings.KaomojiListRaw, EntryLines(Settings.KaomojiListRaw, 3, 8));
             }
             listing.Gap(6f);
@@ -146,8 +148,34 @@ namespace Meowify
                 listing.Label("· " + preview, 60f);
             }
 
+            // ---------------------------------------------------------------- 适用范围
+            Section(listing, "④ 适用范围（关掉哪一层，哪一层就保持原样）");
+            changed |= Checkbox(listing, "界面文本（按钮 / 提示 / 事件弹窗）", ref Settings.ChannelKeyed,
+                "语言包 Keyed 文本。关掉后按钮、提示、菜单保持原语言。");
+            changed |= Checkbox(listing, "定义注入文本（物品 / 技能 / 特性描述）", ref Settings.ChannelDefInjected,
+                "DefInjected 文本。关掉后物品名、描述、特性说明不会被喵化。");
+            changed |= Checkbox(listing, "语法生成句子（事件 / 社交 / 战斗日志）", ref Settings.ChannelGrammar,
+                "GrammarResolver 生成的句子。关掉后事件、社交、战斗日志保持原样。");
+            changed |= Checkbox(listing, "定义字段兜底（未翻译的 def 文本）", ref Settings.ChannelDefSweep,
+                "直接改 def 的 label/description 与背景故事。关掉后未翻译或代码生成的文本不会喵化。");
+            changed |= Checkbox(listing, "给名字也加喵（小人 / 动物 / 武器）", ref Settings.IncludeNames,
+                "默认关：名字由语法生成，加了喵会很怪。开：连名字一起喵。");
+            listing.Gap(6f);
+
+            // ---------------------------------------------------------------- 名字与重复
+            Section(listing, "⑤ 重复与关键词");
+            changed |= Checkbox(listing, "折叠连续句尾词", ref Settings.CollapseRepeated,
+                "开：句末出现「喵喵」「喵呜喵呜」时折叠成一个，再接后缀。");
+            changed |= TextRow(listing, "折叠后的后缀：", ref Settings.CollapseSuffix,
+                "折叠后接的符号，默认 ~，于是「喵喵。」变成「喵~。」。留空就不加后缀。");
+            changed |= Entry(listing, "只喵这些词（每行一个，留空 = 全部）：", ref Settings.IncludeKeywordsRaw, 3);
+            listing.Label("白名单：填了就只处理包含这些词的文本（例如只填「殖民者」）。");
+            changed |= Entry(listing, "不要喵这些词（每行一个）：", ref Settings.ExcludeKeywordsRaw, 3);
+            listing.Label("黑名单：包含这些词的文本整段原样返回，优先级高于白名单。");
+            listing.Gap(6f);
+
             // ---------------------------------------------------------------- 高级
-            Section(listing, "④ 高级");
+            Section(listing, "⑥ 高级");
             changed |= Entry(listing, "额外保护词（每行一个）：", ref Settings.ExtraProtectedWordsRaw, 3);
             listing.Label("含有「我 / 你」但不是人称代词的词，替换前会整体跳过。" +
                           "内置：迷你、自我、忘我、无我、敌我、你我…");
@@ -174,6 +202,7 @@ namespace Meowify
                 Settings.Write();
             }
         }
+
 
         private static void Section(Listing_Standard listing, string title)
         {
@@ -292,6 +321,16 @@ namespace Meowify
                     Settings.KaomojiListRaw = MeowSettings.DefaultKaomojiList;
                     break;
             }
+
+            // 1.3 新增项：所有预设都用推荐默认（通道全开、名字不喵、折叠重复、语境颜文字）
+            Settings.ChannelKeyed = true;
+            Settings.ChannelDefInjected = true;
+            Settings.ChannelGrammar = true;
+            Settings.ChannelDefSweep = true;
+            Settings.IncludeNames = false;
+            Settings.CollapseRepeated = true;
+            Settings.CollapseSuffix = MeowSettings.DefaultCollapseSuffix;
+            Settings.KaomojiContextual = true;
         }
     }
 }
