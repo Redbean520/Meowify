@@ -64,6 +64,7 @@ Every string in RimWorld 1.7 learns to meow: sentence-final "喵", 我→本喵 
 [list]
 [*] 运行时文本变换：不写回游戏数据、不改存档结构，随时可以关掉或退订
 [*] 与其它翻译模组、文本类模组共存没问题
+[*] 兼容 HAR / 绮罗族等异种族模组：只喵可见文本，颜色通道、贴图路径等机器字段原样保留
 [*] 与机器翻译类模组（如 Auto Translation）叠加时，可能出现「双份喵化」——同一句被两层处理，属于预期现象，二选一即可
 [*] 仅支持 RimWorld 1.7（1.6 不适用），需要 Harmony
 [/list]

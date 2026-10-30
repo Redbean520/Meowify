@@ -83,7 +83,7 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 | 补丁 | 目标 | 作用 |
 |---|---|---|
 | postfix | `Verse.LoadedLanguage.TryGetTextFromKey` | 界面 Keyed 文本（按钮、提示、标签） |
-| prefix | `Verse.DefInjectionPackage.InjectIntoDefs` | DefInjected 注入（物品/特性/研究/事件等 def 字段），跳过 RulePackDef 与占位符 |
+| prefix | `Verse.DefInjectionPackage.InjectIntoDefs` | DefInjected 注入（物品/特性/研究/事件等 def 字段），只喵可见文本，跳过 RulePackDef、占位符与机器字段 |
 | postfix | `Verse.Grammar.GrammarResolver.Resolve` | 语法规则生成的句子（事件日志、名称、描述），避免把规则词块拆散 |
 | postfix | `Verse.LoadedLanguage.InjectIntoData_AfterImpliedDefs` | 全部 def 注入完成后扫尾（label/description/背景故事），覆盖未被翻译的 def |
 
@@ -117,6 +117,13 @@ RimWorld **1.7** 的「全员喵化」模组：不改动任何原始翻译文件
 - 物品/地块/植物信息卡（DefInjected）
 - 事件日志与小人名字（GrammarResolver）
 - 殖民者背景故事（BackstoryDef 扫尾）
+- 异种族模组（HAR / 绮罗族等）的小人贴图是否正常
+
+## 兼容性
+
+- 补丁 2 只改「可见文本」字段：路径命中 `.label`/`.description`/`.title`/`.text` 等白名单，或值里含中文时才喵；颜色通道名、贴图路径这类纯 ASCII 机器字段（`colorChannels.N.name`、`texPath`、`graphicPath`、`shaderType`……）一律原样保留。
+- 这条规则是为修绮罗族（Kiiro + HAR）贴图 bug 加的：HAR 在代码里用字面量 `"skin"`/`"hair"` 取颜色通道，Kiiro 的中文语言包把这几个通道名当字符串注入，旧版会把它们喵成 `skin喵`/`hair喵`，导致脸和头发取不到颜色而不绘制（看起来就是透明）。
+- 语法规则串（RulePackDef）仍在 `GrammarResolver.Resolve` 出口统一处理，不在词块层面拆散。
 
 ## 版本号与发版
 

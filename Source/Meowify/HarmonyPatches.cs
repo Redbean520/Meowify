@@ -58,7 +58,7 @@ namespace Meowify
             Log.Message("[Meowify] Harmony patches installed: " + PatchedCount + "/4. 喵。");
         }
 
-      private static int PatchedCount;
+        private static int PatchedCount;
 
         private static void TryPatch(string name, MethodBase target, HarmonyMethod prefix = null, HarmonyMethod postfix = null)
         {
@@ -118,10 +118,49 @@ namespace Meowify
     }
 
     /// <summary>
-    /// 在 DefInjectionPackage.InjectIntoDefs 之前，把翻译注入值喵化，跳过占位符与语法规则包。
+    /// 在 DefInjectionPackage.InjectIntoDefs 之前，把翻译注入值喵化。
+    /// 只喵化「看起来是给人看的文字」的注入值：语言包也可能往非文本字段（颜色通道名、
+    /// 贴图路径等）里注入值，例如绮罗族把 HAR 的 colorChannels.0.name 注入成 skin/hair，
+    /// 一旦被改成「skin喵」，HAR 里用硬编码 "skin"/"hair" 取色的地方就会失配而让贴图变透明。
     /// </summary>
     internal static class MeowInjections
     {
+        /// <summary>
+        /// 这些路径片段指向的是机器标识符（颜色通道名、贴图路径、着色器名等），一律不喵化。
+        /// </summary>
+        private static readonly string[] NonTextPathTokens =
+        {
+            "colorchannel",
+            "texpath",
+            "graphicpath",
+            "graphicdata",
+            "maskpath",
+            "shadertype",
+            "shader",
+            "texturepath",
+            "pathprefix",
+            "rulesstring",
+            "generalrules",
+            "grammar",
+        };
+
+        /// <summary>
+        /// 这些路径后缀确定字段是给人看的文字，即使值是单个英文词也照常喵化。
+        /// </summary>
+        private static readonly string[] TextualPathSuffixes =
+        {
+            ".label",
+            ".labelcap",
+            ".description",
+            ".title",
+            ".helptext",
+            ".text",
+            ".reportstring",
+            ".verb",
+            ".gerund",
+            ".jobstring",
+        };
+
         private static readonly FieldInfo DefTypeField =
             AccessTools.Field(typeof(DefInjectionPackage), "defType");
         private static readonly FieldInfo InjectionsField =
@@ -130,6 +169,7 @@ namespace Meowify
         private static FieldInfo injectionField;
         private static FieldInfo fullListField;
         private static FieldInfo placeholderField;
+        private static FieldInfo pathField;
         private static bool fieldsReady;
         private static bool fieldsFailed;
 
@@ -154,8 +194,9 @@ namespace Meowify
                     return;
                 }
 
-                foreach (object entry in dict.Values)
+                foreach (DictionaryEntry de in dict)
                 {
+                    object entry = de.Value;
                     if (entry == null)
                     {
                         continue;
@@ -167,8 +208,14 @@ namespace Meowify
                             continue;
                         }
 
+                        string path = (pathField != null ? pathField.GetValue(entry) as string : null) ?? (de.Key as string);
                         string injection = injectionField.GetValue(entry) as string;
-                        if (!string.IsNullOrEmpty(injection))
+                        if (!IsTextPath(path))
+                        {
+                            continue;
+                        }
+
+                        if (ShouldMeow(path, injection))
                         {
                             string meowed = Meowifier.Meowify(injection);
                             if (!string.Equals(meowed, injection, StringComparison.Ordinal))
@@ -183,7 +230,7 @@ namespace Meowify
                             for (int i = 0; i < list.Count; i++)
                             {
                                 string item = list[i] as string;
-                                if (string.IsNullOrEmpty(item))
+                                if (!ShouldMeow(path, item))
                                 {
                                     continue;
                                 }
@@ -205,6 +252,90 @@ namespace Meowify
             {
                 Log.Error("[Meowify] 注入值喵化失败: " + e);
             }
+        }
+
+        /// <summary>
+        /// 路径是否指向可显示文本字段。命中机器字段黑名单的一律不喵。
+        /// </summary>
+        private static bool IsTextPath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return true;
+            }
+
+            string lower = path.ToLowerInvariant();
+            for (int i = 0; i < NonTextPathTokens.Length; i++)
+            {
+                if (lower.IndexOf(NonTextPathTokens[i], StringComparison.Ordinal) >= 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 判断这条注入值要不要喵：
+        /// 非文本路径一律不喵；含中日韩字符的当文本；label/description 这类字段就算只有单个英文词也当文本；
+        /// 其余纯 ASCII 且没有空白的当标识符（skin / Blank / Hair_Def 等）跳过；含 / 或 \ 的当资源路径跳过。
+        /// </summary>
+        internal static bool ShouldMeow(string path, string value)
+        {
+            if (string.IsNullOrEmpty(value) || !IsTextPath(path))
+            {
+                return false;
+            }
+
+            bool hasAsian = false;
+            bool hasSpace = false;
+            for (int i = 0; i < value.Length; i++)
+            {
+                char c = value[i];
+                if (c >= '\u2E80')
+                {
+                    hasAsian = true;
+                }
+                else if (char.IsWhiteSpace(c))
+                {
+                    hasSpace = true;
+                }
+            }
+
+            if (hasAsian)
+            {
+                return true;
+            }
+            if (HasTextualPathSuffix(path))
+            {
+                return true;
+            }
+            if (!hasSpace)
+            {
+                return false;
+            }
+            if (value.IndexOf('/') >= 0 || value.IndexOf('\\') >= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private static bool HasTextualPathSuffix(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+            string lower = path.ToLowerInvariant();
+            for (int i = 0; i < TextualPathSuffixes.Length; i++)
+            {
+                if (lower.EndsWith(TextualPathSuffixes[i], StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool EnsureFields()
@@ -233,6 +364,7 @@ namespace Meowify
                 injectionField = AccessTools.Field(entryType, "injection");
                 fullListField = AccessTools.Field(entryType, "fullListInjection");
                 placeholderField = AccessTools.Field(entryType, "isPlaceholder");
+                pathField = AccessTools.Field(entryType, "path");
                 if (injectionField == null)
                 {
                     throw new Exception("DefInjection.injection 字段不存在");
